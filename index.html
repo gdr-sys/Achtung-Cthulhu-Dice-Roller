@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dice Roller - Achtung! Cthulhu 2d20</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Special+Elite&family=Share+Tech+Mono&display=swap');
+:root{--primary:#c8a84b;--bg:#1a1a12;--card:#22221a;--accent:#8fbc55;--text:#e8e0c8;--border:#3a3a28;--input-bg:#12120c;--footer:rgba(200,168,75,0.55);--danger:#c0392b;--muted:#7a7060;--threat:#a84b4b;--fortune:#6b9fc8;--complication:#e67e22;}
+[data-theme="light"]{--bg:#f0ead8;--card:#faf6eb;--text:#2a2418;--border:#c8b89a;--input-bg:#e8e0cc;--footer:rgba(80,60,20,0.6);}
+*{box-sizing:border-box;}
+body{font-family:'Special Elite',serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;padding:15px;margin:0;min-height:100vh;transition:background 0.3s,color 0.3s;}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 3px);pointer-events:none;z-index:0;}
+.header-tools{width:100%;max-width:390px;display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;position:relative;z-index:10;}
+.title-stamp{width:100%;max-width:390px;text-align:center;margin-bottom:14px;position:relative;z-index:1;}
+.title-stamp h1{font-family:'Special Elite',serif;font-size:1.25rem;color:var(--primary);margin:0;text-transform:uppercase;letter-spacing:3px;text-shadow:0 0 20px rgba(200,168,75,0.3);}
+.title-stamp .subtitle{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:2px;margin-top:2px;}
+.title-divider{border:none;border-top:1px solid var(--border);margin:8px auto 0;width:60%;}
+.lang-selector{position:relative;}
+.lang-btn{background:var(--card);border:2px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:bold;font-size:0.8rem;display:flex;align-items:center;gap:5px;font-family:'Share Tech Mono',monospace;}
+.lang-btn:hover{border-color:var(--primary);}
+.lang-dropdown{display:none;position:absolute;top:calc(100% + 6px);left:0;background:var(--card);border:2px solid var(--border);border-radius:8px;overflow:hidden;z-index:100;min-width:150px;box-shadow:0 8px 20px rgba(0,0,0,0.4);}
+.lang-dropdown.open{display:block;}
+.lang-option{padding:9px 13px;cursor:pointer;font-size:0.8rem;font-weight:600;display:flex;align-items:center;gap:8px;font-family:'Share Tech Mono',monospace;}
+.lang-option:hover{background:var(--input-bg);}
+.lang-option.active{color:var(--primary);}
+.theme-toggle{background:var(--card);border:2px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;cursor:pointer;font-size:0.7rem;font-family:'Share Tech Mono',monospace;font-weight:bold;}
+.theme-toggle:hover{border-color:var(--primary);}
+.tab-bar{width:100%;max-width:390px;display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px;position:relative;z-index:1;}
+.tab-btn{padding:10px 6px;border:1px solid var(--border);background:var(--card);color:var(--muted);border-radius:4px;cursor:pointer;font-family:'Share Tech Mono',monospace;font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;transition:all 0.2s;}
+.tab-btn.active{border-color:var(--primary);color:var(--primary);background:rgba(200,168,75,0.08);}
+.card{background:var(--card);padding:18px 18px 16px;border-radius:4px;box-shadow:0 4px 20px rgba(0,0,0,0.4);width:100%;max-width:390px;border:1px solid var(--border);margin-bottom:12px;position:relative;z-index:1;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--primary),transparent);border-radius:4px 4px 0 0;}
+.card-title{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--primary);text-transform:uppercase;font-weight:900;letter-spacing:2px;margin:0 0 14px 0;display:flex;align-items:center;gap:6px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+label.field-label{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);text-transform:uppercase;font-weight:800;letter-spacing:1px;display:block;margin-bottom:4px;}
+input[type=number]{width:100%;padding:10px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:1rem;font-family:'Share Tech Mono',monospace;outline:none;transition:border-color 0.2s;}
+input[type=number]:focus{border-color:var(--primary);}
+input[type=number]:disabled{opacity:0.45;cursor:not-allowed;}
+.option-tile{display:flex;align-items:center;gap:10px;background:var(--input-bg);border:1px solid var(--border);padding:10px 12px;border-radius:4px;margin-bottom:8px;cursor:pointer;font-size:0.82rem;font-family:'Special Elite',serif;transition:border-color 0.15s,background 0.15s;}
+.option-tile input[type=checkbox]{width:15px;height:15px;margin:0;accent-color:var(--primary);cursor:pointer;}
+.option-tile.active{border-color:var(--primary);background:rgba(200,168,75,0.08);}
+.option-tile.active-fortune{border-color:var(--fortune);background:rgba(107,159,200,0.08);}
+.option-tile.active-assist{border-color:var(--accent);background:rgba(143,188,85,0.08);}
+button.main-btn{width:100%;padding:16px;background:var(--primary);color:#0f0e0a;border:none;border-radius:4px;font-family:'Special Elite',serif;font-weight:800;font-size:1.05rem;margin-top:10px;cursor:pointer;text-transform:uppercase;letter-spacing:2px;transition:opacity 0.2s,transform 0.1s;}
+button.main-btn:hover{opacity:0.9;}
+button.main-btn:active{transform:scale(0.98);}
+button.main-btn.danger-btn{background:var(--danger);color:#fff;}
+button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px;}
+.advanced-toggle{width:100%;max-width:390px;display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:4px;padding:11px 16px;cursor:pointer;margin-bottom:12px;font-family:'Share Tech Mono',monospace;font-size:0.72rem;font-weight:800;color:var(--primary);text-transform:uppercase;letter-spacing:1px;position:relative;z-index:1;transition:border-color 0.2s;}
+.advanced-toggle:hover{border-color:var(--primary);}
+.advanced-toggle.open{border-color:var(--primary);border-radius:4px 4px 0 0;border-bottom:none;margin-bottom:0;}
+.advanced-toggle .toggle-arrow{transition:transform 0.25s;}
+.advanced-toggle.open .toggle-arrow{transform:rotate(180deg);}
+.advanced-panel{width:100%;max-width:390px;background:var(--card);border:1px solid var(--primary);border-top:none;border-radius:0 0 4px 4px;overflow:hidden;max-height:0;transition:max-height 0.4s ease,padding 0.35s ease;padding:0 18px;margin-bottom:0;position:relative;z-index:1;}
+.advanced-panel.open{max-height:1100px;padding:14px 18px 18px;margin-bottom:12px;}
+#results,#dmg-results{width:100%;max-width:390px;position:relative;z-index:1;}
+.section-label{font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--primary);text-transform:uppercase;letter-spacing:2px;margin:20px 0 8px 0;}
+.dice-area{text-align:center;margin-bottom:4px;}
+.die{display:inline-flex;width:48px;height:48px;align-items:center;justify-content:center;background:var(--input-bg);border:2px solid var(--border);border-radius:4px;margin:4px;font-family:'Share Tech Mono',monospace;font-weight:bold;font-size:1.2rem;position:relative;color:var(--text);transition:transform 0.1s,border-color 0.15s,box-shadow 0.15s;user-select:none;}
+.die.success{border-color:var(--accent);background:rgba(143,188,85,0.12);color:var(--accent);}
+.die.double-success{border-color:var(--primary);background:rgba(200,168,75,0.15);color:var(--primary);box-shadow:0 0 10px rgba(200,168,75,0.3);}
+.die.complication{border-color:var(--complication)!important;background:rgba(230,126,34,0.15)!important;color:var(--complication)!important;box-shadow:0 0 12px rgba(230,126,34,0.5)!important;animation:pulse-comp 0.8s ease-in-out 3;}
+.die.selected{border-color:var(--danger);box-shadow:0 0 12px rgba(192,57,43,0.4);transform:scale(1.1);}
+.die.fortune-die{border-color:var(--fortune);background:rgba(107,159,200,0.1);}
+.die.assist-die{border-color:var(--accent);background:rgba(143,188,85,0.08);opacity:0.8;}
+@keyframes pulse-comp{0%,100%{box-shadow:0 0 10px rgba(230,126,34,0.4);}50%{box-shadow:0 0 24px rgba(230,126,34,0.9);}}
+.die-label{position:absolute;bottom:-5px;right:-5px;font-size:0.5rem;padding:1px 3px;border-radius:3px;font-weight:900;font-family:'Share Tech Mono',monospace;}
+.die-label.dsuc{background:var(--primary);color:#0a0a05;}
+.die-label.comp{background:var(--complication);color:#fff;}
+.die-label.fail{background:var(--border);color:var(--muted);}
+.die-label.ft{background:var(--fortune);color:#05080f;bottom:auto;top:-5px;right:auto;left:-5px;}
+.die-label.ast{background:var(--accent);color:#05100a;bottom:auto;top:-5px;right:auto;left:-5px;}
+.cdie{display:inline-flex;width:52px;height:52px;align-items:center;justify-content:center;flex-direction:column;background:var(--input-bg);border:2px solid var(--border);border-radius:6px;margin:4px;font-family:'Share Tech Mono',monospace;font-weight:bold;position:relative;color:var(--text);user-select:none;}
+.cdie.dmg1{border-color:var(--accent);background:rgba(143,188,85,0.1);}
+.cdie.dmg2{border-color:var(--primary);background:rgba(200,168,75,0.1);}
+.cdie.effect{border-color:var(--complication);background:rgba(230,126,34,0.1);}
+.cdie.blank{opacity:0.45;}
+.cdie-val{font-size:1.1rem;line-height:1;}
+.cdie-icon{font-size:0.7rem;color:var(--complication);}
+.summary-box{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:16px;margin:14px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;}
+.summary-item{display:flex;flex-direction:column;gap:3px;}
+.sv{font-family:'Share Tech Mono',monospace;font-size:1.8rem;font-weight:900;line-height:1;}
+.sv.sc{color:var(--accent);}
+.sv.mc{color:var(--primary);}
+.sv.fc{color:var(--danger);}
+.sl{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.result-tag{text-align:center;padding:12px;border-radius:4px;margin-bottom:10px;font-family:'Special Elite',serif;font-size:1rem;font-weight:900;letter-spacing:2px;}
+.tag-ok{background:rgba(143,188,85,0.15);border:1px solid var(--accent);color:var(--accent);}
+.tag-ko{background:rgba(192,57,43,0.12);border:1px solid var(--danger);color:var(--danger);}
+.tag-comp{background:rgba(230,126,34,0.12);border:1px solid var(--complication);color:var(--complication);margin-top:8px;font-size:0.85rem;padding:10px 12px;}
+.br{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.br.s1{border-left:3px solid var(--accent);}
+.br.s2{border-left:3px solid var(--primary);}
+.br.s0{border-left:3px solid var(--border);}
+.br.sc{border-left:3px solid var(--complication);}
+.bl{font-size:0.82rem;font-family:'Special Elite',serif;}
+.bb{font-family:'Share Tech Mono',monospace;font-size:0.7rem;padding:2px 8px;border-radius:3px;font-weight:900;}
+.bb.g{background:var(--accent);color:#05100a;}
+.bb.p{background:var(--primary);color:#0a0900;}
+.bb.m{background:var(--border);color:var(--muted);}
+.bb.o{background:var(--complication);color:#fff;}
+.dmg-total-box{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:14px;margin:14px 0;display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:center;}
+.trackers-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;}
+.tracker{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:10px 8px;text-align:center;}
+.tv{font-family:'Share Tech Mono',monospace;font-size:1.6rem;font-weight:900;line-height:1;}
+.tv.m{color:var(--primary);}
+.tv.t{color:var(--threat);}
+.tv.f{color:var(--fortune);}
+.tl{font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:3px;}
+.tbtns{display:flex;gap:4px;margin-top:6px;justify-content:center;}
+.tbtn{background:transparent;border:1px solid var(--border);color:var(--text);border-radius:3px;font-family:'Share Tech Mono',monospace;font-size:0.75rem;padding:3px 9px;cursor:pointer;font-weight:900;transition:background 0.15s,border-color 0.15s;}
+.tbtn.mb:hover{border-color:var(--primary);color:var(--primary);}
+.tbtn.tb:hover{border-color:var(--threat);color:var(--threat);}
+.tbtn.fb:hover{border-color:var(--fortune);color:var(--fortune);}
+.footer-noemi{text-align:center;padding:40px 10px 20px;font-family:'Share Tech Mono',monospace;font-size:0.78em;color:var(--footer);width:100%;position:relative;z-index:1;}
+.link-noemi{color:inherit;text-decoration:none;border-bottom:1px solid currentColor;}
+.kofi-link{display:inline-flex;align-items:center;gap:5px;margin-top:8px;color:var(--footer);text-decoration:none;font-size:0.75em;border-bottom:1px solid currentColor;}
+.kofi-link:hover{color:var(--primary);}
+.sep{border:none;border-top:1px solid var(--border);margin:14px 0;}
+.ih{font-family:'Share Tech Mono',monospace;font-size:0.67rem;color:var(--muted);line-height:1.6;padding:4px 0 6px;}
+.cd-legend{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
+.cd-face{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:8px 10px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;display:flex;align-items:center;gap:8px;}
+.cd-face-num{font-size:1rem;font-weight:900;min-width:16px;}
+
+/* ── STAT ROW (editable TN / CR) ── */
+.stat-row{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.stat-row-label{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:1;}
+.stat-row-right{display:flex;align-items:center;gap:6px;}
+.stat-val-display{font-family:'Share Tech Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--primary);min-width:36px;text-align:right;}
+.stat-val-display.comp-col{color:var(--complication);}
+.stat-input-edit{font-family:'Share Tech Mono',monospace;font-size:1.2rem;font-weight:900;color:var(--primary);background:var(--input-bg);border:2px solid var(--primary);border-radius:4px;width:56px;padding:3px 6px;text-align:center;display:none;outline:none;}
+.stat-input-edit.comp-col{color:var(--complication);border-color:var(--complication);}
+.lock-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;font-size:0.75rem;padding:4px 8px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:border-color 0.15s,color 0.15s;white-space:nowrap;}
+.lock-btn:hover{border-color:var(--primary);color:var(--primary);}
+.lock-btn.unlocked{border-color:var(--primary);color:var(--primary);}
+
+/* ── TN BONUS ROW ── */
+.bonus-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.bonus-row label.field-label{margin:0;flex:1;white-space:nowrap;}
+.bonus-row input{width:70px;flex-shrink:0;}
+.bonus-row .bonus-hint{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);flex:2;line-height:1.3;}
+
+/* ── ASSIST SECTION ── */
+.assist-box{background:var(--input-bg);border:1px solid var(--accent);border-radius:4px;padding:12px;margin-bottom:8px;}
+.assist-header{font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:10px;}
+.assist-result{font-family:'Share Tech Mono',monospace;font-size:0.8rem;margin-top:8px;padding:8px;background:var(--card);border-radius:4px;border:1px solid var(--border);display:none;}
+.assist-dice-area{text-align:center;margin:6px 0;}
+</style>
+</head>
+<body data-theme="dark">
+
+<div class="header-tools">
+  <div class="lang-selector" id="langSelector">
+    <button class="lang-btn" onclick="toggleLangDropdown()">
+      <span id="currentFlag">&#x1F1EE;&#x1F1F9;</span>
+      <span id="currentLangCode">IT</span> &#x25BE;
+    </button>
+    <div class="lang-dropdown" id="langDropdown">
+      <div class="lang-option active" onclick="setLang('it')">&#x1F1EE;&#x1F1F9; IT &mdash; Italiano</div>
+      <div class="lang-option" onclick="setLang('en')">&#x1F1EC;&#x1F1E7; EN &mdash; English</div>
+      <div class="lang-option" onclick="setLang('fr')">&#x1F1EB;&#x1F1F7; FR &mdash; Fran&ccedil;ais</div>
+      <div class="lang-option" onclick="setLang('de')">&#x1F1E9;&#x1F1EA; DE &mdash; Deutsch</div>
+      <div class="lang-option" onclick="setLang('es')">&#x1F1EA;&#x1F1F8; ES &mdash; Espa&ntilde;ol</div>
+    </div>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">TEMA &#x1F313;</button>
+</div>
+
+<div class="title-stamp">
+  <div class="subtitle" id="lbl-subtitle">SISTEMA 2D20 // DICE ROLLER</div>
+  <h1>Achtung! Cthulhu</h1>
+  <hr class="title-divider">
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-skill" onclick="switchTab('skill')">&#x1F3AF; <span id="lbl-tab-skill">Skill Test</span></button>
+  <button class="tab-btn" id="tab-dmg" onclick="switchTab('dmg')">&#x1F4A5; <span id="lbl-tab-dmg">Danni</span></button>
+</div>
+
+<!-- ══ SKILL PANEL ══ -->
+<div id="panel-skill">
+  <div class="card">
+    <div class="card-title">&#x1F3AF; <span id="lbl-card-main">Skill Test</span></div>
+
+    <div class="grid">
+      <div><label class="field-label" id="lbl-attr">Attributo</label><input type="number" id="attrVal" value="8" min="1" max="15" oninput="updateTarget()"></div>
+      <div><label class="field-label" id="lbl-skill">Skill</label><input type="number" id="skillVal" value="4" min="0" max="10" oninput="updateTarget()"></div>
+    </div>
+
+    <!-- TN bonus -->
+    <div class="bonus-row">
+      <label class="field-label" id="lbl-tn-bonus">&#x00B1; TN (Truth/Talento)</label>
+      <input type="number" id="tnBonus" value="0" min="-10" max="10" oninput="updateTarget()">
+      <span class="bonus-hint" id="lbl-tn-hint">Truth, talento, situazione</span>
+    </div>
+
+    <!-- TN display (editable) -->
+    <div class="stat-row">
+      <span class="stat-row-label" id="lbl-target-num">Numero Bersaglio</span>
+      <div class="stat-row-right">
+        <span class="stat-val-display" id="targetDisplay">12</span>
+        <input type="number" class="stat-input-edit" id="targetOverride" value="12" min="1" max="30" oninput="onTNOverride()">
+        <button class="lock-btn" id="lockTN" onclick="toggleLock('TN')" id="lbl-lock-tn">&#x1F512; override</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div><label class="field-label" id="lbl-difficulty">Difficolt&agrave; (0&ndash;5)</label><input type="number" id="diffVal" value="1" min="0" max="5"></div>
+      <div><label class="field-label" id="lbl-injuries">Ferite</label><input type="number" id="injuryVal" value="0" min="0" max="5" oninput="updateTarget()"></div>
+    </div>
+
+    <!-- CR display (editable) -->
+    <div class="stat-row">
+      <span class="stat-row-label" id="lbl-comp-range-label">Range Complicazione</span>
+      <div class="stat-row-right">
+        <span class="stat-val-display comp-col" id="compRangeDisplay">20</span>
+        <input type="number" class="stat-input-edit comp-col" id="crOverride" value="20" min="16" max="20" oninput="onCROverride()">
+        <button class="lock-btn" id="lockCR" onclick="toggleLock('CR')">&#x1F512; override</button>
+      </div>
+    </div>
+
+    <div><label class="field-label" id="lbl-extra-dice">Dadi Extra (max 3)</label><input type="number" id="extraDice" value="0" min="0" max="3"></div>
+
+    <hr class="sep">
+
+    <label class="option-tile" id="tile-focus" onclick="toggleTile('tile-focus','hasFocus')">
+      <input type="checkbox" id="hasFocus">
+      <span id="lbl-focus">&#x1F3AF; Focus (&le; Skill = 2 successi)</span>
+    </label>
+
+    <button class="main-btn" onclick="doRoll()" id="btn-roll">LANCIA I DADI</button>
+  </div>
+
+  <!-- ADVANCED -->
+  <div class="advanced-toggle" id="advancedToggle" onclick="toggleAdvanced()">
+    <span id="lbl-advanced">&#x2699;&#xFE0F; Opzioni Avanzate</span>
+    <span class="toggle-arrow">&#x25BC;</span>
+  </div>
+  <div class="advanced-panel" id="advancedPanel">
+
+    <!-- Fortune -->
+    <label class="option-tile" id="tile-fortune-roll" onclick="toggleTile('tile-fortune-roll','useFortune')">
+      <input type="checkbox" id="useFortune">
+      <span id="lbl-use-fortune">&#x2B50; Usa Fortune (1 dado = successo automatico)</span>
+    </label>
+
+    <!-- Opposed -->
+    <label class="option-tile" id="tile-opposed" onclick="toggleTile('tile-opposed','isOpposed')">
+      <input type="checkbox" id="isOpposed">
+      <span id="lbl-opposed">&#x2694;&#xFE0F; Opposed Test (difficolt&agrave; = 1)</span>
+    </label>
+
+    <hr class="sep">
+
+    <!-- ASSIST SECTION -->
+    <div class="card-title">&#x1F91D; <span id="lbl-assist-title">Assistenza</span></div>
+    <div class="ih" id="lbl-assist-hint">Un alleato pu&ograve; aiutarti: tira con i suoi attributi. Ogni successo extra diventa un dado aggiuntivo per te (max 3 totali).</div>
+
+    <div class="assist-box">
+      <div class="assist-header" id="lbl-assist-header">Tiro dell'Assistente</div>
+      <div class="grid">
+        <div><label class="field-label" id="lbl-assist-attr">Attributo</label><input type="number" id="assistAttr" value="7" min="1" max="15"></div>
+        <div><label class="field-label" id="lbl-assist-skill">Skill</label><input type="number" id="assistSkill" value="3" min="0" max="10"></div>
+      </div>
+      <label class="option-tile" id="tile-assist-focus" onclick="toggleTile('tile-assist-focus','assistFocus')" style="margin-bottom:8px;">
+        <input type="checkbox" id="assistFocus">
+        <span id="lbl-assist-focus">Focus (Assistente)</span>
+      </label>
+      <button class="main-btn assist-btn" onclick="rollAssist()" id="btn-assist">&#x1F91D; TIRA PER L'ASSISTENTE</button>
+      <div class="assist-result" id="assistResult"></div>
+    </div>
+
+    <hr class="sep">
+
+    <!-- TRACKERS -->
+    <div class="card-title">&#x1F4CA; <span id="lbl-trackers">Tracker Risorse</span></div>
+    <div class="trackers-grid">
+      <div class="tracker"><div class="tv m" id="momVal">0</div><div class="tl" id="lbl-mom">Momentum</div><div class="tbtns"><button class="tbtn mb" onclick="changeRes('mom',-1)">&minus;</button><button class="tbtn mb" onclick="changeRes('mom',+1)">+</button></div></div>
+      <div class="tracker"><div class="tv t" id="threatVal">0</div><div class="tl" id="lbl-threat">Threat</div><div class="tbtns"><button class="tbtn tb" onclick="changeRes('threat',-1)">&minus;</button><button class="tbtn tb" onclick="changeRes('threat',+1)">+</button></div></div>
+      <div class="tracker"><div class="tv f" id="fortuneVal">3</div><div class="tl" id="lbl-fortune">Fortune</div><div class="tbtns"><button class="tbtn fb" onclick="changeRes('fortune',-1)">&minus;</button><button class="tbtn fb" onclick="changeRes('fortune',+1)">+</button></div></div>
+    </div>
+    <div class="ih" id="lbl-tracker-hint">Momentum: risorsa condivisa dei PG. Threat: risorsa del GM. Fortune: valuta potente, usare con parsimonia.</div>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<!-- ══ DAMAGE PANEL ══ -->
+<div id="panel-dmg" style="display:none;width:100%;max-width:390px;">
+  <div class="card">
+    <div class="card-title">&#x1F4A5; <span id="lbl-card-dmg">Danni da Combattimento</span></div>
+    <div class="grid">
+      <div><label class="field-label" id="lbl-num-cd">N&deg; Challenge Dice</label><input type="number" id="numCD" value="2" min="1" max="10"></div>
+      <div><label class="field-label" id="lbl-cover">Armatura / Cover</label><input type="number" id="coverVal" value="0" min="0" max="10"></div>
+    </div>
+    <div class="card-title" style="margin-bottom:8px;">&#x1F4CB; <span id="lbl-cd-legend">Facce del Challenge Die</span></div>
+    <div class="cd-legend">
+      <div class="cd-face" style="border-color:var(--accent);"><span class="cd-face-num" style="color:var(--accent);">1</span><span id="cd-f1">1 Stress</span></div>
+      <div class="cd-face" style="border-color:var(--primary);"><span class="cd-face-num" style="color:var(--primary);">2</span><span id="cd-f2">2 Stress</span></div>
+      <div class="cd-face" style="opacity:0.5;"><span class="cd-face-num" style="color:var(--muted);">&mdash;</span><span id="cd-f3">Vuota</span></div>
+      <div class="cd-face" style="opacity:0.5;"><span class="cd-face-num" style="color:var(--muted);">&mdash;</span><span id="cd-f4">Vuota</span></div>
+      <div class="cd-face" style="border-color:var(--complication);grid-column:span 2;"><span class="cd-face-num" style="color:var(--complication);">&#x2622;</span><span id="cd-f5">1 Stress + Effetto speciale (&times;2 facce)</span></div>
+    </div>
+    <button class="main-btn danger-btn" onclick="rollDamage()" id="btn-dmg">LANCIA I DANNI</button>
+  </div>
+  <div id="dmg-results"></div>
+</div>
+
+<footer class="footer-noemi">
+  <p id="footer-text">Progetto e idea di <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a></p>
+  <a href="https://ko-fi.com/noemimarcolini" target="_blank" class="kofi-link" id="kofi-link">&#x2615; Offrimi un caff&egrave; su Ko-fi</a>
+</footer>
+
+<script>
+const LANGS = {
+  it:{flag:"IT",code:"IT",themeBtn:"TEMA",subtitle:"SISTEMA 2D20 // DICE ROLLER",tabSkill:"Skill Test",tabDmg:"Danni",cardMain:"Skill Test",cardDmg:"Danni da Combattimento",lblAttr:"Attributo",lblSkill:"Skill",lblTnBonus:"\u00b1 TN (Truth/Talento)",lblTnHint:"Truth, talento, situazione",lblTargetNum:"Numero Bersaglio",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficolt\u00e0 (0\u20135)",lblInjuries:"Ferite",lblCompRangeLabel:"Range Complicazione",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Dadi Extra (max 3)",lblFocus:"Focus (\u2264 Skill = 2 successi)",btnRoll:"LANCIA I DADI",lblAdvanced:"\u2699\uFE0F Opzioni Avanzate",lblUseFortune:"\u2B50 Usa Fortune (1 dado = successo automatico)",lblOpposed:"\u2694\uFE0F Opposed Test (difficolt\u00e0 = 1)",lblAssistTitle:"Assistenza",lblAssistHint:"Un alleato pu\u00f2 aiutarti: tira con i suoi attributi. Ogni successo extra diventa un dado aggiuntivo per te (max 3 totali).",lblAssistHeader:"Tiro dell'Assistente",lblAssistAttr:"Attributo",lblAssistSkill:"Skill",lblAssistFocus:"Focus (Assistente)",btnAssist:"\uD83E\uDD1D TIRA PER L'ASSISTENTE",lblTrackers:"Tracker Risorse",lblMom:"Momentum",lblThreat:"Threat",lblFortune:"Fortune",lblTrackerHint:"Momentum: risorsa condivisa dei PG. Threat: risorsa del GM. Fortune: valuta potente, usare con parsimonia.",lblNumCD:"N\u00b0 Challenge Dice",lblCover:"Armatura / Cover",lblCdLegend:"Facce del Challenge Die",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Vuota",cdF4:"Vuota",cdF5:"1 Stress + Effetto speciale (\u00d72 facce)",btnDmg:"LANCIA I DANNI",h3Dice:"Dadi Lanciati",h3Breakdown:"Dettaglio",tagOk:"SUCCESSO",tagKo:"FALLIMENTO",tagComp:"\u26A0 COMPLICAZIONE",tagCompNote:"Ogni 20 genera una Complicazione. Il GM pu\u00f2 farla costare 2 Threat invece.",lblSuccesses:"Successi",lblRequired:"Richiesti",lblMom2:"Momentum",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"Momentum generato:",lblCompMulti:"complicazioni",lblComp1:"complicazione",h3CDice:"Challenge Dice",lblTotalStress:"Stress Totale",lblNetStress:"Stress Netto",lblCovers:"Armatura",effectLabel:"\u26A1 Effetto speciale attivato!",cdBlank:"Vuoto",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effetto",assistSuccess:"Successi extra:",assistDiceAdded:"dado/i aggiuntivo/i per te!",assistNone:"Nessun successo extra \u2014 nessun dado aggiunto.",assistComp:"+ complicazione sul 20.",unlockLabel:"\u270F\uFE0F modifica",lockLabel:"\uD83D\uDD12 blocca",footer:`Progetto e idea di <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Offrimi un caff\u00e8 su Ko-fi"},
+  en:{flag:"EN",code:"EN",themeBtn:"THEME",subtitle:"2D20 SYSTEM // DICE ROLLER",tabSkill:"Skill Test",tabDmg:"Damage",cardMain:"Skill Test",cardDmg:"Combat Damage",lblAttr:"Attribute",lblSkill:"Skill",lblTnBonus:"\u00b1 TN (Truth/Talent)",lblTnHint:"Truth, talent, situation",lblTargetNum:"Target Number",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficulty (0\u20135)",lblInjuries:"Injuries",lblCompRangeLabel:"Complication Range",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Extra Dice (max 3)",lblFocus:"Focus (\u2264 Skill = 2 successes)",btnRoll:"ROLL THE DICE",lblAdvanced:"\u2699\uFE0F Advanced Options",lblUseFortune:"\u2B50 Use Fortune (1 die = automatic success)",lblOpposed:"\u2694\uFE0F Opposed Test (difficulty = 1)",lblAssistTitle:"Assist",lblAssistHint:"An ally can help you: they roll with their own attributes. Each extra success becomes an additional die for you (max 3 total).",lblAssistHeader:"Assistant's Roll",lblAssistAttr:"Attribute",lblAssistSkill:"Skill",lblAssistFocus:"Focus (Assistant)",btnAssist:"\uD83E\uDD1D ROLL FOR ASSISTANT",lblTrackers:"Resource Trackers",lblMom:"Momentum",lblThreat:"Threat",lblFortune:"Fortune",lblTrackerHint:"Momentum: shared player pool. Threat: GM pool. Fortune: powerful currency, use sparingly.",lblNumCD:"No. of Challenge Dice",lblCover:"Armour / Cover",lblCdLegend:"Challenge Die Faces",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Blank",cdF4:"Blank",cdF5:"1 Stress + Special Effect (\u00d72 faces)",btnDmg:"ROLL DAMAGE",h3Dice:"Dice Rolled",h3Breakdown:"Breakdown",tagOk:"SUCCESS",tagKo:"FAILURE",tagComp:"\u26A0 COMPLICATION",tagCompNote:"Each die that rolled 20 generates a Complication. The GM may have it cost 2 Threat instead.",lblSuccesses:"Successes",lblRequired:"Required",lblMom2:"Momentum",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"Momentum generated:",lblCompMulti:"complications",lblComp1:"complication",h3CDice:"Challenge Dice",lblTotalStress:"Total Stress",lblNetStress:"Net Stress",lblCovers:"Armour",effectLabel:"\u26A1 Special effect triggered!",cdBlank:"Blank",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effect",assistSuccess:"Extra successes:",assistDiceAdded:"extra die/dice added for you!",assistNone:"No extra successes \u2014 no dice added.",assistComp:"+ complication on 20.",unlockLabel:"\u270F\uFE0F edit",lockLabel:"\uD83D\uDD12 lock",footer:`Design &amp; concept by <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Buy me a coffee on Ko-fi"},
+  fr:{flag:"FR",code:"FR",themeBtn:"TH\u00c8ME",subtitle:"SYST\u00c8ME 2D20 // LANCEUR DE D\u00c9S",tabSkill:"Test Comp.",tabDmg:"D\u00e9g\u00e2ts",cardMain:"Test de Comp\u00e9tence",cardDmg:"D\u00e9g\u00e2ts de Combat",lblAttr:"Attribut",lblSkill:"Comp\u00e9tence",lblTnBonus:"\u00b1 NC (V\u00e9rit\u00e9/Talent)",lblTnHint:"V\u00e9rit\u00e9, talent, situation",lblTargetNum:"Nombre Cible",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficult\u00e9 (0\u20135)",lblInjuries:"Blessures",lblCompRangeLabel:"Plage Complication",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"D\u00e9s Suppl. (max 3)",lblFocus:"Focus (\u2264 Comp = 2 succ\u00e8s)",btnRoll:"LANCER LES D\u00c9S",lblAdvanced:"\u2699\uFE0F Options Avanc\u00e9es",lblUseFortune:"\u2B50 Fortune (1 d\u00e9 = succ\u00e8s auto)",lblOpposed:"\u2694\uFE0F Test Oppos\u00e9 (difficult\u00e9 = 1)",lblAssistTitle:"Assistance",lblAssistHint:"Un alli\u00e9 peut vous aider\u00a0: il lance avec ses propres attributs. Chaque succ\u00e8s en surplus devient un d\u00e9 suppl\u00e9mentaire pour vous (max 3 total).",lblAssistHeader:"Jet de l'Assistant",lblAssistAttr:"Attribut",lblAssistSkill:"Comp\u00e9tence",lblAssistFocus:"Focus (Assistant)",btnAssist:"\uD83E\uDD1D LANCER POUR L'ASSISTANT",lblTrackers:"Ressources",lblMom:"\u00c9lan",lblThreat:"Menace",lblFortune:"Fortune",lblTrackerHint:"\u00c9lan\u00a0: pool partag\u00e9. Menace\u00a0: pool du MJ. Fortune\u00a0: monnaie puissante.",lblNumCD:"Nb D\u00e9s de D\u00e9fi",lblCover:"Armure / Couverture",lblCdLegend:"Faces du D\u00e9 de D\u00e9fi",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Vide",cdF4:"Vide",cdF5:"1 Stress + Effet sp\u00e9cial (\u00d72)",btnDmg:"LANCER LES D\u00c9G\u00c2TS",h3Dice:"D\u00e9s Lanc\u00e9s",h3Breakdown:"D\u00e9tail",tagOk:"SUCC\u00c8S",tagKo:"\u00c9CHEC",tagComp:"\u26A0 COMPLICATION",tagCompNote:"Chaque 20 g\u00e8n\u00e8re une Complication. Le MJ peut la faire co\u00fbter 2 Menace.",lblSuccesses:"Succ\u00e8s",lblRequired:"Requis",lblMom2:"\u00c9lan",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"\u00c9lan g\u00e9n\u00e9r\u00e9\u00a0:",lblCompMulti:"complications",lblComp1:"complication",h3CDice:"D\u00e9s de D\u00e9fi",lblTotalStress:"Stress Total",lblNetStress:"Stress Net",lblCovers:"Armure",effectLabel:"\u26A1 Effet sp\u00e9cial d\u00e9clench\u00e9\u00a0!",cdBlank:"Vide",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effet",assistSuccess:"Succ\u00e8s en surplus\u00a0:",assistDiceAdded:"d\u00e9 suppl. pour vous\u00a0!",assistNone:"Aucun succ\u00e8s en surplus \u2014 aucun d\u00e9 ajout\u00e9.",assistComp:"+ complication sur un 20.",unlockLabel:"\u270F\uFE0F modifier",lockLabel:"\uD83D\uDD12 verrouiller",footer:`Projet et id\u00e9e de <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Offre-moi un caf\u00e9 sur Ko-fi"},
+  de:{flag:"DE",code:"DE",themeBtn:"THEMA",subtitle:"2D20-SYSTEM // W\u00dcRFELRECHNER",tabSkill:"Fertigkeitsprobe",tabDmg:"Schaden",cardMain:"Fertigkeitsprobe",cardDmg:"Kampfschaden",lblAttr:"Attribut",lblSkill:"Fertigkeit",lblTnBonus:"\u00b1 ZW (Wahrheit/Talent)",lblTnHint:"Wahrheit, Talent, Situation",lblTargetNum:"Zielwert",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Schwierigkeit (0\u20135)",lblInjuries:"Verletzungen",lblCompRangeLabel:"Komplikationsbereich",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Extra-W\u00fcrfel (max 3)",lblFocus:"Fokus (\u2264 Fert = 2 Erfolge)",btnRoll:"W\u00dcRFELN",lblAdvanced:"\u2699\uFE0F Erweiterte Optionen",lblUseFortune:"\u2B50 Gl\u00fcck (1 W\u00fcrfel = auto. Erfolg)",lblOpposed:"\u2694\uFE0F Gegenw\u00fcrfelprobe (Schwierigkeit = 1)",lblAssistTitle:"Assistenz",lblAssistHint:"Ein Verb\u00fcndeter kann helfen: er w\u00fcrfelt mit eigenen Werten. Jeder \u00fcberschuss Erfolg wird ein zus\u00e4tzlicher W\u00fcrfel f\u00fcr dich (max. 3).",lblAssistHeader:"Wurf des Assistenten",lblAssistAttr:"Attribut",lblAssistSkill:"Fertigkeit",lblAssistFocus:"Fokus (Assistent)",btnAssist:"\uD83E\uDD1D F\u00dcR ASSISTENT W\u00dcRFELN",lblTrackers:"Ressourcen",lblMom:"Schwung",lblThreat:"Bedrohung",lblFortune:"Gl\u00fcck",lblTrackerHint:"Schwung: Spielervorrat. Bedrohung: SL-Vorrat. Gl\u00fcck: starke W\u00e4hrung.",lblNumCD:"Anzahl Herausforderungsw\u00fcrfel",lblCover:"R\u00fcstung / Deckung",lblCdLegend:"Seiten des Herausforderungsw\u00fcrfels",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Leer",cdF4:"Leer",cdF5:"1 Stress + Sondereffekt (\u00d72)",btnDmg:"SCHADEN W\u00dcRFELN",h3Dice:"Gew\u00fcrfelt",h3Breakdown:"Details",tagOk:"ERFOLG",tagKo:"MISSERFOLG",tagComp:"\u26A0 KOMPLIKATION",tagCompNote:"Jede 20 erzeugt eine Komplikation. Der SL kann sie 2 Bedrohung kosten lassen.",lblSuccesses:"Erfolge",lblRequired:"Ben\u00f6tigt",lblMom2:"Schwung",lblDie:"W20",lblFortuneDie:"Gl\u00fcck",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"KOMP",lblExtraMom:"Schwung erzeugt:",lblCompMulti:"Komplikationen",lblComp1:"Komplikation",h3CDice:"Herausforderungsw\u00fcrfel",lblTotalStress:"Gesamtstress",lblNetStress:"Nettostress",lblCovers:"R\u00fcstung",effectLabel:"\u26A1 Sondereffekt ausgel\u00f6st!",cdBlank:"Leer",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effekt",assistSuccess:"\u00dcberschuss-Erfolge:",assistDiceAdded:"zus. W\u00fcrfel f\u00fcr dich!",assistNone:"Keine \u00dcberschuss-Erfolge \u2014 kein W\u00fcrfel hinzugef\u00fcgt.",assistComp:"+ Komplikation bei 20.",unlockLabel:"\u270F\uFE0F bearbeiten",lockLabel:"\uD83D\uDD12 sperren",footer:`Projekt und Idee von <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Kauf mir einen Kaffee auf Ko-fi"},
+  es:{flag:"ES",code:"ES",themeBtn:"TEMA",subtitle:"SISTEMA 2D20 // LANZADOR DE DADOS",tabSkill:"Prueba Hab.",tabDmg:"Da\u00f1o",cardMain:"Prueba de Habilidad",cardDmg:"Da\u00f1o de Combate",lblAttr:"Atributo",lblSkill:"Habilidad",lblTnBonus:"\u00b1 NO (Verdad/Talento)",lblTnHint:"Verdad, talento, situaci\u00f3n",lblTargetNum:"N\u00famero Objetivo",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Dificultad (0\u20135)",lblInjuries:"Heridas",lblCompRangeLabel:"Rango Complicaci\u00f3n",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Dados Extra (m\u00e1x 3)",lblFocus:"Foco (\u2264 Hab = 2 \u00e9xitos)",btnRoll:"LANZAR LOS DADOS",lblAdvanced:"\u2699\uFE0F Opciones Avanzadas",lblUseFortune:"\u2B50 Fortuna (1 dado = \u00e9xito auto)",lblOpposed:"\u2694\uFE0F Prueba Enfrentada (dificultad = 1)",lblAssistTitle:"Asistencia",lblAssistHint:"Un aliado puede ayudarte: lanza con sus propios atributos. Cada \u00e9xito extra se convierte en un dado adicional para ti (m\u00e1x 3 total).",lblAssistHeader:"Tirada del Asistente",lblAssistAttr:"Atributo",lblAssistSkill:"Habilidad",lblAssistFocus:"Foco (Asistente)",btnAssist:"\uD83E\uDD1D TIRAR PARA EL ASISTENTE",lblTrackers:"Recursos",lblMom:"\u00cdmpetu",lblThreat:"Amenaza",lblFortune:"Fortuna",lblTrackerHint:"\u00cdmpetu: reserva de jugadores. Amenaza: reserva del DJ. Fortuna: moneda poderosa.",lblNumCD:"N\u00b0 de Dados Desaf\u00edo",lblCover:"Armadura / Cobertura",lblCdLegend:"Caras del Dado Desaf\u00edo",cdF1:"1 Estr\u00e9s",cdF2:"2 Estr\u00e9s",cdF3:"Vac\u00eda",cdF4:"Vac\u00eda",cdF5:"1 Estr\u00e9s + Efecto especial (\u00d72)",btnDmg:"LANZAR DA\u00d1O",h3Dice:"Dados Lanzados",h3Breakdown:"Desglose",tagOk:"\u00c9XITO",tagKo:"FRACASO",tagComp:"\u26A0 COMPLICACI\u00d3N",tagCompNote:"Cada 20 genera una Complicaci\u00f3n. El DJ puede hacer que cueste 2 Amenaza.",lblSuccesses:"\u00c9xitos",lblRequired:"Requeridos",lblMom2:"\u00cdmpetu",lblDie:"D20",lblFortuneDie:"Fortuna",lblAssistDie:"Asist.",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"\u00cdmpetu generado:",lblCompMulti:"complicaciones",lblComp1:"complicaci\u00f3n",h3CDice:"Dados Desaf\u00edo",lblTotalStress:"Estr\u00e9s Total",lblNetStress:"Estr\u00e9s Neto",lblCovers:"Armadura",effectLabel:"\u26A1 \u00a1Efecto especial activado!",cdBlank:"Vac\u00eda",cdStress1:"1 Estr\u00e9s",cdStress2:"2 Estr\u00e9s",cdEffect:"1 + Efecto",assistSuccess:"\u00c9xitos extra:",assistDiceAdded:"\u00a1dado/s adicional/es para ti!",assistNone:"Sin \u00e9xitos extra \u2014 ning\u00fan dado a\u00f1adido.",assistComp:"+ complicaci\u00f3n en el 20.",unlockLabel:"\u270F\uFE0F editar",lockLabel:"\uD83D\uDD12 bloquear",footer:`Proyecto e idea de <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Inv\u00edtame a un caf\u00e9 en Ko-fi"}
+};
+
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let currentLang    = "it";
+let currentDice    = [];
+let resources      = {mom:0, threat:0, fortune:3};
+let tnLocked       = true;   // true = auto-calculated, false = manual override
+let crLocked       = true;
+let assistDiceAdded = 0;     // extra dice from assist roll
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function g(id){ return document.getElementById(id); }
+function getAttr()    { return Math.max(1, parseInt(g("attrVal").value)  || 1); }
+function getSkill()   { return Math.max(0, parseInt(g("skillVal").value) || 0); }
+function getTNBonus() { return parseInt(g("tnBonus").value) || 0; }
+function getDiff()    { return Math.max(0, parseInt(g("diffVal").value)  || 0); }
+function getInjuries(){ return Math.max(0, Math.min(5, parseInt(g("injuryVal").value) || 0)); }
+function getBaseExtra(){ return Math.min(3, Math.max(0, parseInt(g("extraDice").value) || 0)); }
+function getExtra()   { return Math.min(3, getBaseExtra() + assistDiceAdded); }
+function hasFocus()   { return g("hasFocus").checked; }
+function isOpposed()  { return g("isOpposed").checked; }
+function usesFortune(){ return g("useFortune").checked; }
+
+function calcTN()     { return Math.max(1, getAttr() + getSkill() + getTNBonus()); }
+function calcCR()     { return Math.max(16, 20 - getInjuries()); }
+
+function getEffectiveTN() {
+  if (!tnLocked) return Math.max(1, parseInt(g("targetOverride").value) || 1);
+  return calcTN();
+}
+function getEffectiveCR() {
+  if (!crLocked) return Math.max(16, Math.min(20, parseInt(g("crOverride").value) || 20));
+  return calcCR();
+}
+
+function updateTarget() {
+  var tn = calcTN();
+  var cr = calcCR();
+  if (tnLocked) {
+    g("targetDisplay").textContent = tn;
+    g("targetOverride").value = tn;
+  }
+  if (crLocked) {
+    g("compRangeDisplay").textContent = (cr === 20) ? "20" : (cr + "\u201320");
+    g("crOverride").value = cr;
+  }
+}
+
+function onTNOverride() {
+  var v = parseInt(g("targetOverride").value) || 1;
+  g("targetDisplay").textContent = Math.max(1, v);
+}
+function onCROverride() {
+  var v = parseInt(g("crOverride").value) || 20;
+  var cr = Math.max(16, Math.min(20, v));
+  g("compRangeDisplay").textContent = (cr === 20) ? "20" : (cr + "\u201320");
+}
+
+function toggleLock(which) {
+  var t = LANGS[currentLang];
+  if (which === "TN") {
+    tnLocked = !tnLocked;
+    var btn = g("lockTN");
+    var disp = g("targetDisplay");
+    var inp  = g("targetOverride");
+    disp.style.display = tnLocked ? "" : "none";
+    inp.style.display  = tnLocked ? "none" : "";
+    btn.textContent    = tnLocked ? t.lblLockTn : t.lockLabel;
+    btn.classList.toggle("unlocked", !tnLocked);
+    if (tnLocked) updateTarget();
+    else { inp.value = calcTN(); inp.focus(); }
+  } else {
+    crLocked = !crLocked;
+    var btn2 = g("lockCR");
+    var disp2 = g("compRangeDisplay");
+    var inp2  = g("crOverride");
+    disp2.style.display = crLocked ? "" : "none";
+    inp2.style.display  = crLocked ? "none" : "";
+    btn2.textContent    = crLocked ? t.lblLockCr : t.lockLabel;
+    btn2.classList.toggle("unlocked", !crLocked);
+    if (crLocked) updateTarget();
+    else { inp2.value = calcCR(); inp2.focus(); }
+  }
+}
+
+// ── ASSIST ────────────────────────────────────────────────────────────────────
+function rollAssist() {
+  var t = LANGS[currentLang];
+  var attr  = Math.max(1, parseInt(g("assistAttr").value)  || 1);
+  var skill = Math.max(0, parseInt(g("assistSkill").value) || 0);
+  var focus = g("assistFocus").checked;
+  var tN    = attr + skill;
+  var cr    = getEffectiveCR();
+
+  var rolls = [];
+  for (var i = 0; i < 2; i++) {
+    var roll = Math.floor(Math.random() * 20) + 1;
+    var suc  = computeSuccesses(roll, tN, skill, focus);
+    var isComp = (roll >= cr);
+    rolls.push({val:roll, successes:suc, isComp:isComp});
+  }
+
+  var totalSuc = 0;
+  rolls.forEach(function(r){ totalSuc += r.successes; });
+  var diff1 = 1; // assist always vs difficulty 1
+  var extraSuc = Math.max(0, totalSuc - diff1);
+  var comps = rolls.filter(function(r){ return r.isComp; }).length;
+
+  // add extra dice (capped so total stays <= 3)
+  assistDiceAdded = Math.min(extraSuc, 3 - getBaseExtra());
+  if (assistDiceAdded < 0) assistDiceAdded = 0;
+
+  // render assist dice
+  var diceHtml = '<div class="assist-dice-area">';
+  rolls.forEach(function(r) {
+    var cls = "die assist-die";
+    if (r.isComp)          cls += " complication";
+    else if (r.successes===2) cls += " double-success";
+    else if (r.successes===1) cls += " success";
+    var badge = "";
+    if (r.isComp) badge = '<span class="die-label comp">' + t.dCompLabel + "</span>";
+    else if (r.successes===2) badge = '<span class="die-label dsuc">' + t.dSucLabel + "</span>";
+    else badge = '<span class="die-label fail">' + t.dFailLabel + "</span>";
+    diceHtml += '<div class="' + cls + '" style="cursor:default;">' + r.val + badge + "</div>";
+  });
+  diceHtml += "</div>";
+
+  var resultHtml = diceHtml;
+  if (extraSuc > 0 && assistDiceAdded > 0) {
+    resultHtml += '<div style="color:var(--accent);font-size:0.82rem;margin-top:4px;">';
+    resultHtml += t.assistSuccess + " <b>" + extraSuc + "</b> \u2192 +" + assistDiceAdded + " " + t.assistDiceAdded + "</div>";
+  } else {
+    resultHtml += '<div style="color:var(--muted);font-size:0.82rem;margin-top:4px;">' + t.assistNone + "</div>";
+  }
+  if (comps > 0) {
+    resultHtml += '<div style="color:var(--complication);font-size:0.78rem;margin-top:2px;">' + t.assistComp + "</div>";
+  }
+
+  var box = g("assistResult");
+  box.innerHTML = resultHtml;
+  box.style.display = "block";
+}
+
+// ── ROLL LOGIC ────────────────────────────────────────────────────────────────
+function computeSuccesses(roll, target, skillVal, focus) {
+  if (roll === 1) return 2;
+  if (roll > target) return 0;
+  if (focus && roll <= skillVal) return 2;
+  return 1;
+}
+
+function doRoll() {
+  var tN    = getEffectiveTN();
+  var skill = getSkill();
+  var extra = getExtra();
+  var focus = hasFocus(), fort = usesFortune();
+  var cr    = getEffectiveCR();
+  currentDice = [];
+
+  for (var i = 0; i < 2 + extra; i++) {
+    var roll  = Math.floor(Math.random() * 20) + 1;
+    var suc   = computeSuccesses(roll, tN, skill, focus);
+    var isFort = (fort && i === 0);
+    var isAst  = (i >= 2 + getBaseExtra()); // dice from assist
+    if (isFort) suc = Math.max(1, suc);
+    currentDice.push({val:roll, isFortune:isFort, isAssist:isAst, successes:suc, isComp:(roll>=cr), selected:false});
+  }
+  renderResults();
+}
+
+
+
+// ── RENDER SKILL ──────────────────────────────────────────────────────────────
+function renderResults() {
+  var t    = LANGS[currentLang];
+  var diff = isOpposed() ? 1 : getDiff();
+  var total = 0;
+  currentDice.forEach(function(d){ total += d.successes; });
+  var passed   = (total >= diff);
+  var momentum = Math.max(0, total - diff);
+  var complications = 0;
+  currentDice.forEach(function(d){ if(d.isComp) complications++; });
+
+  var html = '<div class="section-label">' + t.h3Dice + "</div><div class=\"dice-area\">";
+  currentDice.forEach(function(d, i) {
+    var cls = "die";
+    if      (d.isComp)          cls += " complication";
+    else if (d.successes === 2) cls += " double-success";
+    else if (d.successes === 1) cls += " success";
+    if (d.selected && !d.isComp) cls += " selected";
+    if (d.isFortune && !d.isComp) cls += " fortune-die";
+    if (d.isAssist && !d.isComp && !d.isFortune) cls += " assist-die";
+
+    var badge = "";
+    if      (d.isComp)          badge = '<span class="die-label comp">' + t.dCompLabel + "</span>";
+    else if (d.successes === 2) badge = '<span class="die-label dsuc">' + t.dSucLabel + "</span>";
+    else if (d.successes === 0) badge = '<span class="die-label fail">' + t.dFailLabel + "</span>";
+    if (d.isFortune && !d.isComp) badge += '<span class="die-label ft">\u2605</span>';
+    if (d.isAssist  && !d.isComp && !d.isFortune) badge += '<span class="die-label ast">' + t.lblAssistDie + "</span>";
+
+    html += '<div class="' + cls + '">' + d.val + badge + "</div>";
+  });
+  html += "</div>";
+
+  html += '<div class="summary-box">';
+  html += '<div class="summary-item"><span class="sv ' + (passed?"sc":"fc") + '">' + total + '</span><span class="sl">' + t.lblSuccesses + "</span></div>";
+  html += '<div class="summary-item"><span class="sv" style="color:var(--muted);">' + diff + '</span><span class="sl">' + t.lblRequired + "</span></div>";
+  html += '<div class="summary-item"><span class="sv mc">' + (passed&&momentum>0 ? "+"+momentum : "\u2014") + '</span><span class="sl">' + t.lblMom2 + "</span></div>";
+  html += "</div>";
+
+  html += '<div class="result-tag ' + (passed?"tag-ok":"tag-ko") + '">' + (passed?t.tagOk:t.tagKo) + "</div>";
+
+  if (complications > 0) {
+    var cw = (complications===1) ? t.lblComp1 : t.lblCompMulti;
+    html += '<div class="result-tag tag-comp">' + t.tagComp + " (" + complications + " " + cw + ")<br>";
+    html += '<span style="font-size:0.72rem;font-family:\'Share Tech Mono\',monospace;opacity:0.85;">' + t.tagCompNote + "</span></div>";
+  }
+
+  html += '<div class="section-label">' + t.h3Breakdown + "</div>";
+  currentDice.forEach(function(d, i) {
+    var rowCls, badgeCls, sucText, rowLabel;
+    if (d.isComp) { rowCls="sc"; badgeCls="o"; sucText = d.successes>0 ? d.successes+" \u2713+\u26A0":"\u26A0"; }
+    else if (d.successes===2) { rowCls="s2"; badgeCls="p"; sucText="2 \u2713"; }
+    else if (d.successes===1) { rowCls="s1"; badgeCls="g"; sucText="1 \u2713"; }
+    else                      { rowCls="s0"; badgeCls="m"; sucText="0"; }
+    var prefix = d.isFortune ? "\u2605 "+t.lblFortuneDie : (d.isAssist ? "\uD83E\uDD1D "+t.lblAssistDie : t.lblDie);
+    rowLabel = prefix + " #" + (i+1);
+    html += '<div class="br ' + rowCls + '"><span class="bl">' + rowLabel + " \u2014 <b>" + d.val + "</b></span><span class=\"bb " + badgeCls + '">' + sucText + "</span></div>";
+  });
+
+  if (passed && momentum > 0) {
+    html += '<div style="margin-top:10px;background:rgba(200,168,75,0.08);border:1px solid var(--primary);border-radius:4px;padding:10px 12px;font-family:\'Share Tech Mono\',monospace;font-size:0.78rem;color:var(--primary);">\u26A1 ' + t.lblExtraMom + " <b>+" + momentum + "</b></div>";
+  }
+
+  g("results").innerHTML = html;
+}
+
+// ── DAMAGE ROLL ───────────────────────────────────────────────────────────────
+function rollChallengeDie() {
+  var f = Math.floor(Math.random() * 6) + 1;
+  if (f===1) return {stress:1, effect:false};
+  if (f===2) return {stress:2, effect:false};
+  if (f===3||f===4) return {stress:0, effect:false};
+  return {stress:1, effect:true};
+}
+
+function rollDamage() {
+  var t     = LANGS[currentLang];
+  var num   = Math.max(1, parseInt(g("numCD").value)    || 1);
+  var cover = Math.max(0, parseInt(g("coverVal").value) || 0);
+  var rolls = [];
+  for (var i=0; i<num; i++) rolls.push(rollChallengeDie());
+  var totalStress=0, effects=0;
+  rolls.forEach(function(r){ totalStress+=r.stress; if(r.effect) effects++; });
+  var netStress = Math.max(0, totalStress - cover);
+
+  var html = '<div class="section-label">' + t.h3CDice + "</div><div class=\"dice-area\">";
+  rolls.forEach(function(r) {
+    var cls="cdie", valHtml="", iconHtml="";
+    if (r.stress===0)   { cls+=" blank";  valHtml='<span class="cdie-val" style="color:var(--muted);">\u2014</span>'; }
+    else if (r.effect)  { cls+=" effect"; valHtml='<span class="cdie-val">'+r.stress+"</span>"; iconHtml='<span class="cdie-icon">\u2622</span>'; }
+    else if (r.stress===2){ cls+=" dmg2"; valHtml='<span class="cdie-val">'+r.stress+"</span>"; }
+    else                { cls+=" dmg1";  valHtml='<span class="cdie-val">'+r.stress+"</span>"; }
+    html += '<div class="' + cls + '">' + valHtml + iconHtml + "</div>";
+  });
+  html += "</div>";
+
+  html += '<div class="dmg-total-box">';
+  html += '<div class="summary-item"><span class="sv sc">'+totalStress+'</span><span class="sl">'+t.lblTotalStress+"</span></div>";
+  html += '<div class="summary-item"><span class="sv" style="color:var(--muted);">'+cover+'</span><span class="sl">'+t.lblCovers+"</span></div>";
+  html += '<div class="summary-item" style="grid-column:span 2;"><span class="sv '+(netStress>0?"fc":"sc")+'" style="font-size:2.4rem;">'+netStress+'</span><span class="sl">'+t.lblNetStress+"</span></div>";
+  html += "</div>";
+
+  rolls.forEach(function(r,i){
+    var rowCls, label, badgeCls;
+    if (r.stress===0)  { rowCls="s0"; label=t.cdBlank;   badgeCls="m"; }
+    else if (r.effect) { rowCls="sc"; label=t.cdEffect;  badgeCls="o"; }
+    else if (r.stress===2){ rowCls="s2"; label=t.cdStress2; badgeCls="p"; }
+    else               { rowCls="s1"; label=t.cdStress1; badgeCls="g"; }
+    html += '<div class="br '+rowCls+'"><span class="bl">Die #'+(i+1)+'</span><span class="bb '+badgeCls+'">'+label+"</span></div>";
+  });
+
+  for (var e=0; e<effects; e++) {
+    html += '<div style="margin-top:6px;background:rgba(230,126,34,0.08);border:1px solid var(--complication);border-radius:4px;padding:10px 12px;font-family:\'Share Tech Mono\',monospace;font-size:0.78rem;color:var(--complication);">'+t.effectLabel+"</div>";
+  }
+  g("dmg-results").innerHTML = html;
+}
+
+// ── RESOURCES ─────────────────────────────────────────────────────────────────
+function changeRes(type, delta) {
+  resources[type] = Math.max(0, resources[type] + delta);
+  g("momVal").textContent    = resources.mom;
+  g("threatVal").textContent  = resources.threat;
+  g("fortuneVal").textContent = resources.fortune;
+}
+
+// ── LANGUAGE ──────────────────────────────────────────────────────────────────
+function toggleLangDropdown(){ g("langDropdown").classList.toggle("open"); }
+document.addEventListener("click", function(e){
+  if (!g("langSelector").contains(e.target)) g("langDropdown").classList.remove("open");
+});
+
+function setLang(lang) {
+  currentLang = lang;
+  var t = LANGS[lang];
+  g("currentFlag").textContent     = t.flag;
+  g("currentLangCode").textContent = t.code;
+  document.querySelectorAll(".lang-option").forEach(function(el){
+    el.classList.toggle("active", el.textContent.includes(t.code));
+  });
+  var map = {
+    "themeBtn":"themeBtn","lbl-subtitle":"subtitle","lbl-tab-skill":"tabSkill","lbl-tab-dmg":"tabDmg",
+    "lbl-card-main":"cardMain","lbl-card-dmg":"cardDmg","lbl-attr":"lblAttr","lbl-skill":"lblSkill",
+    "lbl-tn-bonus":"lblTnBonus","lbl-tn-hint":"lblTnHint","lbl-target-num":"lblTargetNum",
+    "lbl-difficulty":"lblDifficulty","lbl-injuries":"lblInjuries",
+    "lbl-comp-range-label":"lblCompRangeLabel","lbl-extra-dice":"lblExtraDice",
+    "lbl-focus":"lblFocus","btn-roll":"btnRoll",
+    "lbl-advanced":"lblAdvanced","lbl-use-fortune":"lblUseFortune","lbl-opposed":"lblOpposed",
+    "lbl-assist-title":"lblAssistTitle","lbl-assist-hint":"lblAssistHint",
+    "lbl-assist-header":"lblAssistHeader","lbl-assist-attr":"lblAssistAttr",
+    "lbl-assist-skill":"lblAssistSkill","lbl-assist-focus":"lblAssistFocus","btn-assist":"btnAssist",
+    "lbl-trackers":"lblTrackers","lbl-mom":"lblMom","lbl-threat":"lblThreat","lbl-fortune":"lblFortune",
+    "lbl-tracker-hint":"lblTrackerHint","lbl-num-cd":"lblNumCD","lbl-cover":"lblCover",
+    "lbl-cd-legend":"lblCdLegend","cd-f1":"cdF1","cd-f2":"cdF2","cd-f3":"cdF3","cd-f4":"cdF4","cd-f5":"cdF5",
+    "btn-dmg":"btnDmg"
+  };
+  Object.keys(map).forEach(function(id){ var el=g(id); if(el) el.textContent=t[map[id]]; });
+  // Update lock buttons respecting current state
+  g("lockTN").textContent = tnLocked ? t.lblLockTn : t.lockLabel;
+  g("lockCR").textContent = crLocked ? t.lblLockCr : t.lockLabel;
+  g("footer-text").innerHTML = t.footer;
+  g("kofi-link").textContent = t.kofi;
+  g("langDropdown").classList.remove("open");
+  if (currentDice.length > 0) renderResults();
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+function toggleTheme(){
+  var b = document.body;
+  b.setAttribute("data-theme", b.getAttribute("data-theme")==="dark"?"light":"dark");
+}
+
+// ── OPTION TILES ──────────────────────────────────────────────────────────────
+function toggleTile(tileId, cbId) {
+  var cb = g(cbId); cb.checked = !cb.checked;
+  var tile = g(tileId);
+  tile.classList.remove("active","active-fortune","active-assist");
+  if (cb.checked) {
+    if (cbId==="useFortune") tile.classList.add("active-fortune");
+    else tile.classList.add("active");
+  }
+}
+
+// ── ADVANCED TOGGLE ───────────────────────────────────────────────────────────
+function toggleAdvanced(){
+  g("advancedToggle").classList.toggle("open");
+  g("advancedPanel").classList.toggle("open");
+}
+
+// ── TAB SWITCH ────────────────────────────────────────────────────────────────
+function switchTab(tab){
+  g("panel-skill").style.display = (tab==="skill") ? "" : "none";
+  g("panel-dmg").style.display   = (tab==="dmg")   ? "" : "none";
+  g("tab-skill").classList.toggle("active", tab==="skill");
+  g("tab-dmg").classList.toggle("active",   tab==="dmg");
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+updateTarget();
+</script>
+</body>
+</html>
