@@ -125,16 +125,15 @@ button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px
 .cd-face-num{font-size:1rem;font-weight:900;min-width:16px;}
 
 /* ── STAT ROW (editable TN / CR) ── */
-.stat-row{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:8px 12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;}
-.stat-row-label{font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;flex:1;}
-.stat-row-right{display:flex;align-items:center;gap:6px;}
-.stat-val-display{font-family:'Share Tech Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--primary);min-width:36px;text-align:right;}
-.stat-val-display.comp-col{color:var(--complication);}
-.stat-input-edit{font-family:'Share Tech Mono',monospace;font-size:1.2rem;font-weight:900;color:var(--primary);background:var(--input-bg);border:2px solid var(--primary);border-radius:4px;width:56px;padding:3px 6px;text-align:center;display:none;outline:none;}
-.stat-input-edit.comp-col{color:var(--complication);border-color:var(--complication);}
-.lock-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;font-size:0.75rem;padding:4px 8px;cursor:pointer;font-family:'Share Tech Mono',monospace;transition:border-color 0.15s,color 0.15s;white-space:nowrap;}
-.lock-btn:hover{border-color:var(--primary);color:var(--primary);}
-.lock-btn.unlocked{border-color:var(--primary);color:var(--primary);}
+.range-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.range-block{background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:10px 12px;}
+.range-block.crit-block{border-color:var(--primary);}
+.range-block.comp-block{border-color:var(--complication);}
+.range-block label.field-label{margin-bottom:6px;}
+.range-input{width:100%;padding:8px 10px;background:var(--card);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:1.1rem;font-weight:900;font-family:'Share Tech Mono',monospace;outline:none;text-align:center;transition:border-color 0.2s;}
+.range-input.crit-input{color:var(--primary);border-color:var(--primary);}
+.range-input.comp-input{color:var(--complication);border-color:var(--complication);}
+.range-hint{font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);margin-top:4px;line-height:1.3;}
 
 /* ── TN BONUS ROW ── */
 .bonus-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
@@ -196,14 +195,10 @@ button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px
       <span class="bonus-hint" id="lbl-tn-hint">Truth, talento, situazione</span>
     </div>
 
-    <!-- TN display (editable) -->
-    <div class="stat-row">
-      <span class="stat-row-label" id="lbl-target-num">Numero Bersaglio</span>
-      <div class="stat-row-right">
-        <span class="stat-val-display" id="targetDisplay">12</span>
-        <input type="number" class="stat-input-edit" id="targetOverride" value="12" min="1" max="30" oninput="onTNOverride()">
-        <button class="lock-btn" id="lockTN" onclick="toggleLock('TN')" id="lbl-lock-tn">&#x1F512; override</button>
-      </div>
+    <!-- TN display -->
+    <div class="stat-row" style="background:var(--input-bg);border:1px solid var(--border);border-radius:4px;padding:10px 12px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;" id="lbl-target-num">Numero Bersaglio</span>
+      <span style="font-family:'Share Tech Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--primary);" id="targetDisplay">12</span>
     </div>
 
     <div class="grid">
@@ -211,13 +206,17 @@ button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px
       <div><label class="field-label" id="lbl-injuries">Ferite</label><input type="number" id="injuryVal" value="0" min="0" max="5" oninput="updateTarget()"></div>
     </div>
 
-    <!-- CR display (editable) -->
-    <div class="stat-row">
-      <span class="stat-row-label" id="lbl-comp-range-label">Range Complicazione</span>
-      <div class="stat-row-right">
-        <span class="stat-val-display comp-col" id="compRangeDisplay">20</span>
-        <input type="number" class="stat-input-edit comp-col" id="crOverride" value="20" min="16" max="20" oninput="onCROverride()">
-        <button class="lock-btn" id="lockCR" onclick="toggleLock('CR')">&#x1F512; override</button>
+    <!-- Critical & Complication range inputs -->
+    <div class="range-grid">
+      <div class="range-block crit-block">
+        <label class="field-label" id="lbl-crit-range">Range Critico</label>
+        <input type="number" class="range-input crit-input" id="critRangeInput" value="1" min="1" max="20" oninput="onRangeInput()">
+        <div class="range-hint" id="lbl-crit-hint">Auto: 1&ndash;1 (con Focus: 1&ndash;Skill)</div>
+      </div>
+      <div class="range-block comp-block">
+        <label class="field-label" id="lbl-comp-range-label">Range Comp.</label>
+        <input type="number" class="range-input comp-input" id="crInput" value="20" min="16" max="20" oninput="onRangeInput()">
+        <div class="range-hint" id="lbl-comp-hint">Auto: 20 (ferite: &minus;1 per ferita)</div>
       </div>
     </div>
 
@@ -225,8 +224,8 @@ button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px
 
     <hr class="sep">
 
-    <label class="option-tile" id="tile-focus" onclick="toggleTile('tile-focus','hasFocus')">
-      <input type="checkbox" id="hasFocus">
+    <label class="option-tile" id="tile-focus">
+      <input type="checkbox" id="hasFocus" onchange="toggleTile('tile-focus','hasFocus');updateTarget()">
       <span id="lbl-focus">&#x1F3AF; Focus (&le; Skill = 2 successi)</span>
     </label>
 
@@ -241,14 +240,14 @@ button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px
   <div class="advanced-panel" id="advancedPanel">
 
     <!-- Fortune -->
-    <label class="option-tile" id="tile-fortune-roll" onclick="toggleTile('tile-fortune-roll','useFortune')">
-      <input type="checkbox" id="useFortune">
+    <label class="option-tile" id="tile-fortune-roll">
+      <input type="checkbox" id="useFortune" onchange="toggleTile('tile-fortune-roll','useFortune')">
       <span id="lbl-use-fortune">&#x2B50; Usa Fortune (1 dado = successo automatico)</span>
     </label>
 
     <!-- Opposed -->
-    <label class="option-tile" id="tile-opposed" onclick="toggleTile('tile-opposed','isOpposed')">
-      <input type="checkbox" id="isOpposed">
+    <label class="option-tile" id="tile-opposed">
+      <input type="checkbox" id="isOpposed" onchange="toggleTile('tile-opposed','isOpposed')">
       <span id="lbl-opposed">&#x2694;&#xFE0F; Opposed Test (difficolt&agrave; = 1)</span>
     </label>
 
@@ -264,8 +263,8 @@ button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px
         <div><label class="field-label" id="lbl-assist-attr">Attributo</label><input type="number" id="assistAttr" value="7" min="1" max="15"></div>
         <div><label class="field-label" id="lbl-assist-skill">Skill</label><input type="number" id="assistSkill" value="3" min="0" max="10"></div>
       </div>
-      <label class="option-tile" id="tile-assist-focus" onclick="toggleTile('tile-assist-focus','assistFocus')" style="margin-bottom:8px;">
-        <input type="checkbox" id="assistFocus">
+      <label class="option-tile" id="tile-assist-focus" style="margin-bottom:8px;">
+        <input type="checkbox" id="assistFocus" onchange="toggleTile('tile-assist-focus','assistFocus')">
         <span id="lbl-assist-focus">Focus (Assistente)</span>
       </label>
       <button class="main-btn assist-btn" onclick="rollAssist()" id="btn-assist">&#x1F91D; TIRA PER L'ASSISTENTE</button>
@@ -315,19 +314,19 @@ button.main-btn.assist-btn{background:var(--accent);color:#0a120a;margin-top:6px
 
 <script>
 const LANGS = {
-  it:{flag:"IT",code:"IT",themeBtn:"TEMA",subtitle:"SISTEMA 2D20 // DICE ROLLER",tabSkill:"Skill Test",tabDmg:"Danni",cardMain:"Skill Test",cardDmg:"Danni da Combattimento",lblAttr:"Attributo",lblSkill:"Skill",lblTnBonus:"\u00b1 TN (Truth/Talento)",lblTnHint:"Truth, talento, situazione",lblTargetNum:"Numero Bersaglio",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficolt\u00e0 (0\u20135)",lblInjuries:"Ferite",lblCompRangeLabel:"Range Complicazione",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Dadi Extra (max 3)",lblFocus:"Focus (\u2264 Skill = 2 successi)",btnRoll:"LANCIA I DADI",lblAdvanced:"\u2699\uFE0F Opzioni Avanzate",lblUseFortune:"\u2B50 Usa Fortune (1 dado = successo automatico)",lblOpposed:"\u2694\uFE0F Opposed Test (difficolt\u00e0 = 1)",lblAssistTitle:"Assistenza",lblAssistHint:"Un alleato pu\u00f2 aiutarti: tira con i suoi attributi. Ogni successo extra diventa un dado aggiuntivo per te (max 3 totali).",lblAssistHeader:"Tiro dell'Assistente",lblAssistAttr:"Attributo",lblAssistSkill:"Skill",lblAssistFocus:"Focus (Assistente)",btnAssist:"\uD83E\uDD1D TIRA PER L'ASSISTENTE",lblTrackers:"Tracker Risorse",lblMom:"Momentum",lblThreat:"Threat",lblFortune:"Fortune",lblTrackerHint:"Momentum: risorsa condivisa dei PG. Threat: risorsa del GM. Fortune: valuta potente, usare con parsimonia.",lblNumCD:"N\u00b0 Challenge Dice",lblCover:"Armatura / Cover",lblCdLegend:"Facce del Challenge Die",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Vuota",cdF4:"Vuota",cdF5:"1 Stress + Effetto speciale (\u00d72 facce)",btnDmg:"LANCIA I DANNI",h3Dice:"Dadi Lanciati",h3Breakdown:"Dettaglio",tagOk:"SUCCESSO",tagKo:"FALLIMENTO",tagComp:"\u26A0 COMPLICAZIONE",tagCompNote:"Ogni 20 genera una Complicazione. Il GM pu\u00f2 farla costare 2 Threat invece.",lblSuccesses:"Successi",lblRequired:"Richiesti",lblMom2:"Momentum",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"Momentum generato:",lblCompMulti:"complicazioni",lblComp1:"complicazione",h3CDice:"Challenge Dice",lblTotalStress:"Stress Totale",lblNetStress:"Stress Netto",lblCovers:"Armatura",effectLabel:"\u26A1 Effetto speciale attivato!",cdBlank:"Vuoto",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effetto",assistSuccess:"Successi extra:",assistDiceAdded:"dado/i aggiuntivo/i per te!",assistNone:"Nessun successo extra \u2014 nessun dado aggiunto.",assistComp:"+ complicazione sul 20.",unlockLabel:"\u270F\uFE0F modifica",lockLabel:"\uD83D\uDD12 blocca",footer:`Progetto e idea di <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Offrimi un caff\u00e8 su Ko-fi"},
-  en:{flag:"EN",code:"EN",themeBtn:"THEME",subtitle:"2D20 SYSTEM // DICE ROLLER",tabSkill:"Skill Test",tabDmg:"Damage",cardMain:"Skill Test",cardDmg:"Combat Damage",lblAttr:"Attribute",lblSkill:"Skill",lblTnBonus:"\u00b1 TN (Truth/Talent)",lblTnHint:"Truth, talent, situation",lblTargetNum:"Target Number",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficulty (0\u20135)",lblInjuries:"Injuries",lblCompRangeLabel:"Complication Range",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Extra Dice (max 3)",lblFocus:"Focus (\u2264 Skill = 2 successes)",btnRoll:"ROLL THE DICE",lblAdvanced:"\u2699\uFE0F Advanced Options",lblUseFortune:"\u2B50 Use Fortune (1 die = automatic success)",lblOpposed:"\u2694\uFE0F Opposed Test (difficulty = 1)",lblAssistTitle:"Assist",lblAssistHint:"An ally can help you: they roll with their own attributes. Each extra success becomes an additional die for you (max 3 total).",lblAssistHeader:"Assistant's Roll",lblAssistAttr:"Attribute",lblAssistSkill:"Skill",lblAssistFocus:"Focus (Assistant)",btnAssist:"\uD83E\uDD1D ROLL FOR ASSISTANT",lblTrackers:"Resource Trackers",lblMom:"Momentum",lblThreat:"Threat",lblFortune:"Fortune",lblTrackerHint:"Momentum: shared player pool. Threat: GM pool. Fortune: powerful currency, use sparingly.",lblNumCD:"No. of Challenge Dice",lblCover:"Armour / Cover",lblCdLegend:"Challenge Die Faces",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Blank",cdF4:"Blank",cdF5:"1 Stress + Special Effect (\u00d72 faces)",btnDmg:"ROLL DAMAGE",h3Dice:"Dice Rolled",h3Breakdown:"Breakdown",tagOk:"SUCCESS",tagKo:"FAILURE",tagComp:"\u26A0 COMPLICATION",tagCompNote:"Each die that rolled 20 generates a Complication. The GM may have it cost 2 Threat instead.",lblSuccesses:"Successes",lblRequired:"Required",lblMom2:"Momentum",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"Momentum generated:",lblCompMulti:"complications",lblComp1:"complication",h3CDice:"Challenge Dice",lblTotalStress:"Total Stress",lblNetStress:"Net Stress",lblCovers:"Armour",effectLabel:"\u26A1 Special effect triggered!",cdBlank:"Blank",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effect",assistSuccess:"Extra successes:",assistDiceAdded:"extra die/dice added for you!",assistNone:"No extra successes \u2014 no dice added.",assistComp:"+ complication on 20.",unlockLabel:"\u270F\uFE0F edit",lockLabel:"\uD83D\uDD12 lock",footer:`Design &amp; concept by <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Buy me a coffee on Ko-fi"},
-  fr:{flag:"FR",code:"FR",themeBtn:"TH\u00c8ME",subtitle:"SYST\u00c8ME 2D20 // LANCEUR DE D\u00c9S",tabSkill:"Test Comp.",tabDmg:"D\u00e9g\u00e2ts",cardMain:"Test de Comp\u00e9tence",cardDmg:"D\u00e9g\u00e2ts de Combat",lblAttr:"Attribut",lblSkill:"Comp\u00e9tence",lblTnBonus:"\u00b1 NC (V\u00e9rit\u00e9/Talent)",lblTnHint:"V\u00e9rit\u00e9, talent, situation",lblTargetNum:"Nombre Cible",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficult\u00e9 (0\u20135)",lblInjuries:"Blessures",lblCompRangeLabel:"Plage Complication",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"D\u00e9s Suppl. (max 3)",lblFocus:"Focus (\u2264 Comp = 2 succ\u00e8s)",btnRoll:"LANCER LES D\u00c9S",lblAdvanced:"\u2699\uFE0F Options Avanc\u00e9es",lblUseFortune:"\u2B50 Fortune (1 d\u00e9 = succ\u00e8s auto)",lblOpposed:"\u2694\uFE0F Test Oppos\u00e9 (difficult\u00e9 = 1)",lblAssistTitle:"Assistance",lblAssistHint:"Un alli\u00e9 peut vous aider\u00a0: il lance avec ses propres attributs. Chaque succ\u00e8s en surplus devient un d\u00e9 suppl\u00e9mentaire pour vous (max 3 total).",lblAssistHeader:"Jet de l'Assistant",lblAssistAttr:"Attribut",lblAssistSkill:"Comp\u00e9tence",lblAssistFocus:"Focus (Assistant)",btnAssist:"\uD83E\uDD1D LANCER POUR L'ASSISTANT",lblTrackers:"Ressources",lblMom:"\u00c9lan",lblThreat:"Menace",lblFortune:"Fortune",lblTrackerHint:"\u00c9lan\u00a0: pool partag\u00e9. Menace\u00a0: pool du MJ. Fortune\u00a0: monnaie puissante.",lblNumCD:"Nb D\u00e9s de D\u00e9fi",lblCover:"Armure / Couverture",lblCdLegend:"Faces du D\u00e9 de D\u00e9fi",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Vide",cdF4:"Vide",cdF5:"1 Stress + Effet sp\u00e9cial (\u00d72)",btnDmg:"LANCER LES D\u00c9G\u00c2TS",h3Dice:"D\u00e9s Lanc\u00e9s",h3Breakdown:"D\u00e9tail",tagOk:"SUCC\u00c8S",tagKo:"\u00c9CHEC",tagComp:"\u26A0 COMPLICATION",tagCompNote:"Chaque 20 g\u00e8n\u00e8re une Complication. Le MJ peut la faire co\u00fbter 2 Menace.",lblSuccesses:"Succ\u00e8s",lblRequired:"Requis",lblMom2:"\u00c9lan",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"\u00c9lan g\u00e9n\u00e9r\u00e9\u00a0:",lblCompMulti:"complications",lblComp1:"complication",h3CDice:"D\u00e9s de D\u00e9fi",lblTotalStress:"Stress Total",lblNetStress:"Stress Net",lblCovers:"Armure",effectLabel:"\u26A1 Effet sp\u00e9cial d\u00e9clench\u00e9\u00a0!",cdBlank:"Vide",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effet",assistSuccess:"Succ\u00e8s en surplus\u00a0:",assistDiceAdded:"d\u00e9 suppl. pour vous\u00a0!",assistNone:"Aucun succ\u00e8s en surplus \u2014 aucun d\u00e9 ajout\u00e9.",assistComp:"+ complication sur un 20.",unlockLabel:"\u270F\uFE0F modifier",lockLabel:"\uD83D\uDD12 verrouiller",footer:`Projet et id\u00e9e de <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Offre-moi un caf\u00e9 sur Ko-fi"},
-  de:{flag:"DE",code:"DE",themeBtn:"THEMA",subtitle:"2D20-SYSTEM // W\u00dcRFELRECHNER",tabSkill:"Fertigkeitsprobe",tabDmg:"Schaden",cardMain:"Fertigkeitsprobe",cardDmg:"Kampfschaden",lblAttr:"Attribut",lblSkill:"Fertigkeit",lblTnBonus:"\u00b1 ZW (Wahrheit/Talent)",lblTnHint:"Wahrheit, Talent, Situation",lblTargetNum:"Zielwert",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Schwierigkeit (0\u20135)",lblInjuries:"Verletzungen",lblCompRangeLabel:"Komplikationsbereich",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Extra-W\u00fcrfel (max 3)",lblFocus:"Fokus (\u2264 Fert = 2 Erfolge)",btnRoll:"W\u00dcRFELN",lblAdvanced:"\u2699\uFE0F Erweiterte Optionen",lblUseFortune:"\u2B50 Gl\u00fcck (1 W\u00fcrfel = auto. Erfolg)",lblOpposed:"\u2694\uFE0F Gegenw\u00fcrfelprobe (Schwierigkeit = 1)",lblAssistTitle:"Assistenz",lblAssistHint:"Ein Verb\u00fcndeter kann helfen: er w\u00fcrfelt mit eigenen Werten. Jeder \u00fcberschuss Erfolg wird ein zus\u00e4tzlicher W\u00fcrfel f\u00fcr dich (max. 3).",lblAssistHeader:"Wurf des Assistenten",lblAssistAttr:"Attribut",lblAssistSkill:"Fertigkeit",lblAssistFocus:"Fokus (Assistent)",btnAssist:"\uD83E\uDD1D F\u00dcR ASSISTENT W\u00dcRFELN",lblTrackers:"Ressourcen",lblMom:"Schwung",lblThreat:"Bedrohung",lblFortune:"Gl\u00fcck",lblTrackerHint:"Schwung: Spielervorrat. Bedrohung: SL-Vorrat. Gl\u00fcck: starke W\u00e4hrung.",lblNumCD:"Anzahl Herausforderungsw\u00fcrfel",lblCover:"R\u00fcstung / Deckung",lblCdLegend:"Seiten des Herausforderungsw\u00fcrfels",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Leer",cdF4:"Leer",cdF5:"1 Stress + Sondereffekt (\u00d72)",btnDmg:"SCHADEN W\u00dcRFELN",h3Dice:"Gew\u00fcrfelt",h3Breakdown:"Details",tagOk:"ERFOLG",tagKo:"MISSERFOLG",tagComp:"\u26A0 KOMPLIKATION",tagCompNote:"Jede 20 erzeugt eine Komplikation. Der SL kann sie 2 Bedrohung kosten lassen.",lblSuccesses:"Erfolge",lblRequired:"Ben\u00f6tigt",lblMom2:"Schwung",lblDie:"W20",lblFortuneDie:"Gl\u00fcck",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"KOMP",lblExtraMom:"Schwung erzeugt:",lblCompMulti:"Komplikationen",lblComp1:"Komplikation",h3CDice:"Herausforderungsw\u00fcrfel",lblTotalStress:"Gesamtstress",lblNetStress:"Nettostress",lblCovers:"R\u00fcstung",effectLabel:"\u26A1 Sondereffekt ausgel\u00f6st!",cdBlank:"Leer",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effekt",assistSuccess:"\u00dcberschuss-Erfolge:",assistDiceAdded:"zus. W\u00fcrfel f\u00fcr dich!",assistNone:"Keine \u00dcberschuss-Erfolge \u2014 kein W\u00fcrfel hinzugef\u00fcgt.",assistComp:"+ Komplikation bei 20.",unlockLabel:"\u270F\uFE0F bearbeiten",lockLabel:"\uD83D\uDD12 sperren",footer:`Projekt und Idee von <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Kauf mir einen Kaffee auf Ko-fi"},
-  es:{flag:"ES",code:"ES",themeBtn:"TEMA",subtitle:"SISTEMA 2D20 // LANZADOR DE DADOS",tabSkill:"Prueba Hab.",tabDmg:"Da\u00f1o",cardMain:"Prueba de Habilidad",cardDmg:"Da\u00f1o de Combate",lblAttr:"Atributo",lblSkill:"Habilidad",lblTnBonus:"\u00b1 NO (Verdad/Talento)",lblTnHint:"Verdad, talento, situaci\u00f3n",lblTargetNum:"N\u00famero Objetivo",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Dificultad (0\u20135)",lblInjuries:"Heridas",lblCompRangeLabel:"Rango Complicaci\u00f3n",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Dados Extra (m\u00e1x 3)",lblFocus:"Foco (\u2264 Hab = 2 \u00e9xitos)",btnRoll:"LANZAR LOS DADOS",lblAdvanced:"\u2699\uFE0F Opciones Avanzadas",lblUseFortune:"\u2B50 Fortuna (1 dado = \u00e9xito auto)",lblOpposed:"\u2694\uFE0F Prueba Enfrentada (dificultad = 1)",lblAssistTitle:"Asistencia",lblAssistHint:"Un aliado puede ayudarte: lanza con sus propios atributos. Cada \u00e9xito extra se convierte en un dado adicional para ti (m\u00e1x 3 total).",lblAssistHeader:"Tirada del Asistente",lblAssistAttr:"Atributo",lblAssistSkill:"Habilidad",lblAssistFocus:"Foco (Asistente)",btnAssist:"\uD83E\uDD1D TIRAR PARA EL ASISTENTE",lblTrackers:"Recursos",lblMom:"\u00cdmpetu",lblThreat:"Amenaza",lblFortune:"Fortuna",lblTrackerHint:"\u00cdmpetu: reserva de jugadores. Amenaza: reserva del DJ. Fortuna: moneda poderosa.",lblNumCD:"N\u00b0 de Dados Desaf\u00edo",lblCover:"Armadura / Cobertura",lblCdLegend:"Caras del Dado Desaf\u00edo",cdF1:"1 Estr\u00e9s",cdF2:"2 Estr\u00e9s",cdF3:"Vac\u00eda",cdF4:"Vac\u00eda",cdF5:"1 Estr\u00e9s + Efecto especial (\u00d72)",btnDmg:"LANZAR DA\u00d1O",h3Dice:"Dados Lanzados",h3Breakdown:"Desglose",tagOk:"\u00c9XITO",tagKo:"FRACASO",tagComp:"\u26A0 COMPLICACI\u00d3N",tagCompNote:"Cada 20 genera una Complicaci\u00f3n. El DJ puede hacer que cueste 2 Amenaza.",lblSuccesses:"\u00c9xitos",lblRequired:"Requeridos",lblMom2:"\u00cdmpetu",lblDie:"D20",lblFortuneDie:"Fortuna",lblAssistDie:"Asist.",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"\u00cdmpetu generado:",lblCompMulti:"complicaciones",lblComp1:"complicaci\u00f3n",h3CDice:"Dados Desaf\u00edo",lblTotalStress:"Estr\u00e9s Total",lblNetStress:"Estr\u00e9s Neto",lblCovers:"Armadura",effectLabel:"\u26A1 \u00a1Efecto especial activado!",cdBlank:"Vac\u00eda",cdStress1:"1 Estr\u00e9s",cdStress2:"2 Estr\u00e9s",cdEffect:"1 + Efecto",assistSuccess:"\u00c9xitos extra:",assistDiceAdded:"\u00a1dado/s adicional/es para ti!",assistNone:"Sin \u00e9xitos extra \u2014 ning\u00fan dado a\u00f1adido.",assistComp:"+ complicaci\u00f3n en el 20.",unlockLabel:"\u270F\uFE0F editar",lockLabel:"\uD83D\uDD12 bloquear",footer:`Proyecto e idea de <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Inv\u00edtame a un caf\u00e9 en Ko-fi"}
+  it:{flag:"IT",code:"IT",themeBtn:"TEMA",subtitle:"SISTEMA 2D20 // DICE ROLLER",tabSkill:"Skill Test",tabDmg:"Danni",cardMain:"Skill Test",cardDmg:"Danni da Combattimento",lblAttr:"Attributo",lblSkill:"Skill",lblTnBonus:"\u00b1 TN (Truth/Talento)",lblTnHint:"Truth, talento, situazione",lblTargetNum:"Numero Bersaglio",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficolt\u00e0 (0\u20135)",lblInjuries:"Ferite",lblCompRangeLabel:"Range Complicazione",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Dadi Extra (max 3)",lblFocus:"Focus (\u2264 Skill = 2 successi)",btnRoll:"LANCIA I DADI",lblAdvanced:"\u2699\uFE0F Opzioni Avanzate",lblUseFortune:"\u2B50 Usa Fortune (1 dado = successo automatico)",lblOpposed:"\u2694\uFE0F Opposed Test (difficolt\u00e0 = 1)",lblAssistTitle:"Assistenza",lblAssistHint:"Un alleato pu\u00f2 aiutarti: tira con i suoi attributi. Ogni successo extra diventa un dado aggiuntivo per te (max 3 totali).",lblAssistHeader:"Tiro dell'Assistente",lblAssistAttr:"Attributo",lblAssistSkill:"Skill",lblAssistFocus:"Focus (Assistente)",btnAssist:"\uD83E\uDD1D TIRA PER L'ASSISTENTE",lblTrackers:"Tracker Risorse",lblMom:"Momentum",lblThreat:"Threat",lblFortune:"Fortune",lblTrackerHint:"Momentum: risorsa condivisa dei PG. Threat: risorsa del GM. Fortune: valuta potente, usare con parsimonia.",lblNumCD:"N\u00b0 Challenge Dice",lblCover:"Armatura / Cover",lblCdLegend:"Facce del Challenge Die",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Vuota",cdF4:"Vuota",cdF5:"1 Stress + Effetto speciale (\u00d72 facce)",btnDmg:"LANCIA I DANNI",h3Dice:"Dadi Lanciati",h3Breakdown:"Dettaglio",tagOk:"SUCCESSO",tagKo:"FALLIMENTO",tagComp:"\u26A0 COMPLICAZIONE",tagCompNote:"Ogni 20 genera una Complicazione. Il GM pu\u00f2 farla costare 2 Threat invece.",lblSuccesses:"Successi",lblRequired:"Richiesti",lblMom2:"Momentum",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"Momentum generato:",lblCompMulti:"complicazioni",lblComp1:"complicazione",h3CDice:"Challenge Dice",lblTotalStress:"Stress Totale",lblNetStress:"Stress Netto",lblCovers:"Armatura",effectLabel:"\u26A1 Effetto speciale attivato!",cdBlank:"Vuoto",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effetto",assistSuccess:"Successi extra:",assistDiceAdded:"dado/i aggiuntivo/i per te!",assistNone:"Nessun successo extra \u2014 nessun dado aggiunto.",critHintNoFocus:"Auto: solo 1 (nessun Focus)",critHintFocus:"Auto: 1\u2013",lblCritHint:"Auto: 1\u20131 (con Focus: 1\u2013Skill)",lblCompHint:"Auto: 20 (\u22121 per ferita)",critHintNoFocus:"Auto: solo 1 (nessun Focus)",critHintFocus:"Auto: 1–",assistComp:"+ complicazione sul 20.",unlockLabel:"\u270F\uFE0F modifica",lockLabel:"\uD83D\uDD12 blocca",footer:`Progetto e idea di <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Offrimi un caff\u00e8 su Ko-fi"},
+  en:{flag:"EN",code:"EN",themeBtn:"THEME",subtitle:"2D20 SYSTEM // DICE ROLLER",tabSkill:"Skill Test",tabDmg:"Damage",cardMain:"Skill Test",cardDmg:"Combat Damage",lblAttr:"Attribute",lblSkill:"Skill",lblTnBonus:"\u00b1 TN (Truth/Talent)",lblTnHint:"Truth, talent, situation",lblTargetNum:"Target Number",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficulty (0\u20135)",lblInjuries:"Injuries",lblCompRangeLabel:"Complication Range",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Extra Dice (max 3)",lblFocus:"Focus (\u2264 Skill = 2 successes)",btnRoll:"ROLL THE DICE",lblAdvanced:"\u2699\uFE0F Advanced Options",lblUseFortune:"\u2B50 Use Fortune (1 die = automatic success)",lblOpposed:"\u2694\uFE0F Opposed Test (difficulty = 1)",lblAssistTitle:"Assist",lblAssistHint:"An ally can help you: they roll with their own attributes. Each extra success becomes an additional die for you (max 3 total).",lblAssistHeader:"Assistant's Roll",lblAssistAttr:"Attribute",lblAssistSkill:"Skill",lblAssistFocus:"Focus (Assistant)",btnAssist:"\uD83E\uDD1D ROLL FOR ASSISTANT",lblTrackers:"Resource Trackers",lblMom:"Momentum",lblThreat:"Threat",lblFortune:"Fortune",lblTrackerHint:"Momentum: shared player pool. Threat: GM pool. Fortune: powerful currency, use sparingly.",lblNumCD:"No. of Challenge Dice",lblCover:"Armour / Cover",lblCdLegend:"Challenge Die Faces",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Blank",cdF4:"Blank",cdF5:"1 Stress + Special Effect (\u00d72 faces)",btnDmg:"ROLL DAMAGE",h3Dice:"Dice Rolled",h3Breakdown:"Breakdown",tagOk:"SUCCESS",tagKo:"FAILURE",tagComp:"\u26A0 COMPLICATION",tagCompNote:"Each die that rolled 20 generates a Complication. The GM may have it cost 2 Threat instead.",lblSuccesses:"Successes",lblRequired:"Required",lblMom2:"Momentum",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"Momentum generated:",lblCompMulti:"complications",lblComp1:"complication",h3CDice:"Challenge Dice",lblTotalStress:"Total Stress",lblNetStress:"Net Stress",lblCovers:"Armour",effectLabel:"\u26A1 Special effect triggered!",cdBlank:"Blank",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effect",assistSuccess:"Extra successes:",assistDiceAdded:"extra die/dice added for you!",assistNone:"No extra successes \u2014 no dice added.",critHintNoFocus:"Auto: 1 only (no Focus)",critHintFocus:"Auto: 1–",assistComp:"+ complication on 20.",unlockLabel:"\u270F\uFE0F edit",lockLabel:"\uD83D\uDD12 lock",footer:`Design &amp; concept by <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Buy me a coffee on Ko-fi"},
+  fr:{flag:"FR",code:"FR",themeBtn:"TH\u00c8ME",subtitle:"SYST\u00c8ME 2D20 // LANCEUR DE D\u00c9S",tabSkill:"Test Comp.",tabDmg:"D\u00e9g\u00e2ts",cardMain:"Test de Comp\u00e9tence",cardDmg:"D\u00e9g\u00e2ts de Combat",lblAttr:"Attribut",lblSkill:"Comp\u00e9tence",lblTnBonus:"\u00b1 NC (V\u00e9rit\u00e9/Talent)",lblTnHint:"V\u00e9rit\u00e9, talent, situation",lblTargetNum:"Nombre Cible",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Difficult\u00e9 (0\u20135)",lblInjuries:"Blessures",lblCompRangeLabel:"Plage Complication",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"D\u00e9s Suppl. (max 3)",lblFocus:"Focus (\u2264 Comp = 2 succ\u00e8s)",btnRoll:"LANCER LES D\u00c9S",lblAdvanced:"\u2699\uFE0F Options Avanc\u00e9es",lblUseFortune:"\u2B50 Fortune (1 d\u00e9 = succ\u00e8s auto)",lblOpposed:"\u2694\uFE0F Test Oppos\u00e9 (difficult\u00e9 = 1)",lblAssistTitle:"Assistance",lblAssistHint:"Un alli\u00e9 peut vous aider\u00a0: il lance avec ses propres attributs. Chaque succ\u00e8s en surplus devient un d\u00e9 suppl\u00e9mentaire pour vous (max 3 total).",lblAssistHeader:"Jet de l'Assistant",lblAssistAttr:"Attribut",lblAssistSkill:"Comp\u00e9tence",lblAssistFocus:"Focus (Assistant)",btnAssist:"\uD83E\uDD1D LANCER POUR L'ASSISTANT",lblTrackers:"Ressources",lblMom:"\u00c9lan",lblThreat:"Menace",lblFortune:"Fortune",lblTrackerHint:"\u00c9lan\u00a0: pool partag\u00e9. Menace\u00a0: pool du MJ. Fortune\u00a0: monnaie puissante.",lblNumCD:"Nb D\u00e9s de D\u00e9fi",lblCover:"Armure / Couverture",lblCdLegend:"Faces du D\u00e9 de D\u00e9fi",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Vide",cdF4:"Vide",cdF5:"1 Stress + Effet sp\u00e9cial (\u00d72)",btnDmg:"LANCER LES D\u00c9G\u00c2TS",h3Dice:"D\u00e9s Lanc\u00e9s",h3Breakdown:"D\u00e9tail",tagOk:"SUCC\u00c8S",tagKo:"\u00c9CHEC",tagComp:"\u26A0 COMPLICATION",tagCompNote:"Chaque 20 g\u00e8n\u00e8re une Complication. Le MJ peut la faire co\u00fbter 2 Menace.",lblSuccesses:"Succ\u00e8s",lblRequired:"Requis",lblMom2:"\u00c9lan",lblDie:"D20",lblFortuneDie:"Fortune",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"\u00c9lan g\u00e9n\u00e9r\u00e9\u00a0:",lblCompMulti:"complications",lblComp1:"complication",h3CDice:"D\u00e9s de D\u00e9fi",lblTotalStress:"Stress Total",lblNetStress:"Stress Net",lblCovers:"Armure",effectLabel:"\u26A1 Effet sp\u00e9cial d\u00e9clench\u00e9\u00a0!",cdBlank:"Vide",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effet",assistSuccess:"Succ\u00e8s en surplus\u00a0:",assistDiceAdded:"d\u00e9 suppl. pour vous\u00a0!",assistNone:"Aucun succ\u00e8s en surplus \u2014 aucun d\u00e9 ajout\u00e9.",critHintNoFocus:"Auto : seulement 1 (sans Focus)",critHintFocus:"Auto : 1–",assistComp:"+ complication sur un 20.",unlockLabel:"\u270F\uFE0F modifier",lockLabel:"\uD83D\uDD12 verrouiller",footer:`Projet et id\u00e9e de <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Offre-moi un caf\u00e9 sur Ko-fi"},
+  de:{flag:"DE",code:"DE",themeBtn:"THEMA",subtitle:"2D20-SYSTEM // W\u00dcRFELRECHNER",tabSkill:"Fertigkeitsprobe",tabDmg:"Schaden",cardMain:"Fertigkeitsprobe",cardDmg:"Kampfschaden",lblAttr:"Attribut",lblSkill:"Fertigkeit",lblTnBonus:"\u00b1 ZW (Wahrheit/Talent)",lblTnHint:"Wahrheit, Talent, Situation",lblTargetNum:"Zielwert",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Schwierigkeit (0\u20135)",lblInjuries:"Verletzungen",lblCompRangeLabel:"Komplikationsbereich",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Extra-W\u00fcrfel (max 3)",lblFocus:"Fokus (\u2264 Fert = 2 Erfolge)",btnRoll:"W\u00dcRFELN",lblAdvanced:"\u2699\uFE0F Erweiterte Optionen",lblUseFortune:"\u2B50 Gl\u00fcck (1 W\u00fcrfel = auto. Erfolg)",lblOpposed:"\u2694\uFE0F Gegenw\u00fcrfelprobe (Schwierigkeit = 1)",lblAssistTitle:"Assistenz",lblAssistHint:"Ein Verb\u00fcndeter kann helfen: er w\u00fcrfelt mit eigenen Werten. Jeder \u00fcberschuss Erfolg wird ein zus\u00e4tzlicher W\u00fcrfel f\u00fcr dich (max. 3).",lblAssistHeader:"Wurf des Assistenten",lblAssistAttr:"Attribut",lblAssistSkill:"Fertigkeit",lblAssistFocus:"Fokus (Assistent)",btnAssist:"\uD83E\uDD1D F\u00dcR ASSISTENT W\u00dcRFELN",lblTrackers:"Ressourcen",lblMom:"Schwung",lblThreat:"Bedrohung",lblFortune:"Gl\u00fcck",lblTrackerHint:"Schwung: Spielervorrat. Bedrohung: SL-Vorrat. Gl\u00fcck: starke W\u00e4hrung.",lblNumCD:"Anzahl Herausforderungsw\u00fcrfel",lblCover:"R\u00fcstung / Deckung",lblCdLegend:"Seiten des Herausforderungsw\u00fcrfels",cdF1:"1 Stress",cdF2:"2 Stress",cdF3:"Leer",cdF4:"Leer",cdF5:"1 Stress + Sondereffekt (\u00d72)",btnDmg:"SCHADEN W\u00dcRFELN",h3Dice:"Gew\u00fcrfelt",h3Breakdown:"Details",tagOk:"ERFOLG",tagKo:"MISSERFOLG",tagComp:"\u26A0 KOMPLIKATION",tagCompNote:"Jede 20 erzeugt eine Komplikation. Der SL kann sie 2 Bedrohung kosten lassen.",lblSuccesses:"Erfolge",lblRequired:"Ben\u00f6tigt",lblMom2:"Schwung",lblDie:"W20",lblFortuneDie:"Gl\u00fcck",lblAssistDie:"Assist",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"KOMP",lblExtraMom:"Schwung erzeugt:",lblCompMulti:"Komplikationen",lblComp1:"Komplikation",h3CDice:"Herausforderungsw\u00fcrfel",lblTotalStress:"Gesamtstress",lblNetStress:"Nettostress",lblCovers:"R\u00fcstung",effectLabel:"\u26A1 Sondereffekt ausgel\u00f6st!",cdBlank:"Leer",cdStress1:"1 Stress",cdStress2:"2 Stress",cdEffect:"1 + Effekt",assistSuccess:"\u00dcberschuss-Erfolge:",assistDiceAdded:"zus. W\u00fcrfel f\u00fcr dich!",assistNone:"Keine \u00dcberschuss-Erfolge \u2014 kein W\u00fcrfel hinzugef\u00fcgt.",critHintNoFocus:"Auto: nur 1 (kein Fokus)",critHintFocus:"Auto: 1–",assistComp:"+ Komplikation bei 20.",unlockLabel:"\u270F\uFE0F bearbeiten",lockLabel:"\uD83D\uDD12 sperren",footer:`Projekt und Idee von <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Kauf mir einen Kaffee auf Ko-fi"},
+  es:{flag:"ES",code:"ES",themeBtn:"TEMA",subtitle:"SISTEMA 2D20 // LANZADOR DE DADOS",tabSkill:"Prueba Hab.",tabDmg:"Da\u00f1o",cardMain:"Prueba de Habilidad",cardDmg:"Da\u00f1o de Combate",lblAttr:"Atributo",lblSkill:"Habilidad",lblTnBonus:"\u00b1 NO (Verdad/Talento)",lblTnHint:"Verdad, talento, situaci\u00f3n",lblTargetNum:"N\u00famero Objetivo",lblLockTn:"\uD83D\uDD12 override",lblDifficulty:"Dificultad (0\u20135)",lblInjuries:"Heridas",lblCompRangeLabel:"Rango Complicaci\u00f3n",lblLockCr:"\uD83D\uDD12 override",lblExtraDice:"Dados Extra (m\u00e1x 3)",lblFocus:"Foco (\u2264 Hab = 2 \u00e9xitos)",btnRoll:"LANZAR LOS DADOS",lblAdvanced:"\u2699\uFE0F Opciones Avanzadas",lblUseFortune:"\u2B50 Fortuna (1 dado = \u00e9xito auto)",lblOpposed:"\u2694\uFE0F Prueba Enfrentada (dificultad = 1)",lblAssistTitle:"Asistencia",lblAssistHint:"Un aliado puede ayudarte: lanza con sus propios atributos. Cada \u00e9xito extra se convierte en un dado adicional para ti (m\u00e1x 3 total).",lblAssistHeader:"Tirada del Asistente",lblAssistAttr:"Atributo",lblAssistSkill:"Habilidad",lblAssistFocus:"Foco (Asistente)",btnAssist:"\uD83E\uDD1D TIRAR PARA EL ASISTENTE",lblTrackers:"Recursos",lblMom:"\u00cdmpetu",lblThreat:"Amenaza",lblFortune:"Fortuna",lblTrackerHint:"\u00cdmpetu: reserva de jugadores. Amenaza: reserva del DJ. Fortuna: moneda poderosa.",lblNumCD:"N\u00b0 de Dados Desaf\u00edo",lblCover:"Armadura / Cobertura",lblCdLegend:"Caras del Dado Desaf\u00edo",cdF1:"1 Estr\u00e9s",cdF2:"2 Estr\u00e9s",cdF3:"Vac\u00eda",cdF4:"Vac\u00eda",cdF5:"1 Estr\u00e9s + Efecto especial (\u00d72)",btnDmg:"LANZAR DA\u00d1O",h3Dice:"Dados Lanzados",h3Breakdown:"Desglose",tagOk:"\u00c9XITO",tagKo:"FRACASO",tagComp:"\u26A0 COMPLICACI\u00d3N",tagCompNote:"Cada 20 genera una Complicaci\u00f3n. El DJ puede hacer que cueste 2 Amenaza.",lblSuccesses:"\u00c9xitos",lblRequired:"Requeridos",lblMom2:"\u00cdmpetu",lblDie:"D20",lblFortuneDie:"Fortuna",lblAssistDie:"Asist.",dSucLabel:"2\u00d7",dFailLabel:"\u2717",dCompLabel:"COMP",lblExtraMom:"\u00cdmpetu generado:",lblCompMulti:"complicaciones",lblComp1:"complicaci\u00f3n",h3CDice:"Dados Desaf\u00edo",lblTotalStress:"Estr\u00e9s Total",lblNetStress:"Estr\u00e9s Neto",lblCovers:"Armadura",effectLabel:"\u26A1 \u00a1Efecto especial activado!",cdBlank:"Vac\u00eda",cdStress1:"1 Estr\u00e9s",cdStress2:"2 Estr\u00e9s",cdEffect:"1 + Efecto",assistSuccess:"\u00c9xitos extra:",assistDiceAdded:"\u00a1dado/s adicional/es para ti!",assistNone:"Sin \u00e9xitos extra \u2014 ning\u00fan dado a\u00f1adido.",critHintNoFocus:"Auto: solo 1 (sin Foco)",critHintFocus:"Auto: 1–",assistComp:"+ complicación en el 20.",unlockLabel:"\u270F\uFE0F editar",lockLabel:"\uD83D\uDD12 bloquear",footer:`Proyecto e idea de <a href="mailto:noemi.marcolini@gmail.com" class="link-noemi">Noemi Marcolini</a>`,kofi:"\u2615 Inv\u00edtame a un caf\u00e9 en Ko-fi"}
 };
 
 // ── STATE ──────────────────────────────────────────────────────────────────────
 let currentLang    = "it";
 let currentDice    = [];
 let resources      = {mom:0, threat:0, fortune:3};
-let tnLocked       = true;   // true = auto-calculated, false = manual override
-let crLocked       = true;
+let critRangeOverride = false;  // if true, user has manually edited crit range
+let crOverride_flag   = false;  // if true, user has manually edited comp range
 let assistDiceAdded = 0;     // extra dice from assist roll
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -345,64 +344,39 @@ function usesFortune(){ return g("useFortune").checked; }
 
 function calcTN()     { return Math.max(1, getAttr() + getSkill() + getTNBonus()); }
 function calcCR()     { return Math.max(16, 20 - getInjuries()); }
+function calcCritMax(){ return hasFocus() ? Math.max(1, getSkill()) : 1; }
 
-function getEffectiveTN() {
-  if (!tnLocked) return Math.max(1, parseInt(g("targetOverride").value) || 1);
-  return calcTN();
-}
-function getEffectiveCR() {
-  if (!crLocked) return Math.max(16, Math.min(20, parseInt(g("crOverride").value) || 20));
-  return calcCR();
-}
+function getEffectiveTN()   { return calcTN(); }
+function getEffectiveCR()   { return Math.max(16, Math.min(20, parseInt(g("crInput").value) || 20)); }
+function getEffectiveCrit() { return Math.max(1,  Math.min(20, parseInt(g("critRangeInput").value) || 1)); }
 
 function updateTarget() {
-  var tn = calcTN();
-  var cr = calcCR();
-  if (tnLocked) {
-    g("targetDisplay").textContent = tn;
-    g("targetOverride").value = tn;
-  }
-  if (crLocked) {
-    g("compRangeDisplay").textContent = (cr === 20) ? "20" : (cr + "\u201320");
-    g("crOverride").value = cr;
-  }
+  g("targetDisplay").textContent = calcTN();
+  // auto-update CR if field matches the auto value (user hasn't diverged)
+  var autoCR   = calcCR();
+  var curCR    = parseInt(g("crInput").value) || 20;
+  // only auto-update if the field is still at a "clean" auto value
+  if (!crOverride_flag) g("crInput").value = autoCR;
+  // auto-update crit range if user hasn't overridden it
+  var autoCrit = calcCritMax();
+  if (!critRangeOverride) g("critRangeInput").value = autoCrit;
+  updateCritHint();
 }
 
-function onTNOverride() {
-  var v = parseInt(g("targetOverride").value) || 1;
-  g("targetDisplay").textContent = Math.max(1, v);
-}
-function onCROverride() {
-  var v = parseInt(g("crOverride").value) || 20;
-  var cr = Math.max(16, Math.min(20, v));
-  g("compRangeDisplay").textContent = (cr === 20) ? "20" : (cr + "\u201320");
+function onRangeInput() {
+  // Mark as manually overridden so updateTarget stops auto-filling
+  var autoCR   = calcCR();
+  var autoCrit = calcCritMax();
+  crOverride_flag   = (parseInt(g("crInput").value) || 20) !== autoCR;
+  critRangeOverride = (parseInt(g("critRangeInput").value) || 1) !== autoCrit;
+  updateCritHint();
 }
 
-function toggleLock(which) {
+function updateCritHint() {
   var t = LANGS[currentLang];
-  if (which === "TN") {
-    tnLocked = !tnLocked;
-    var btn = g("lockTN");
-    var disp = g("targetDisplay");
-    var inp  = g("targetOverride");
-    disp.style.display = tnLocked ? "" : "none";
-    inp.style.display  = tnLocked ? "none" : "";
-    btn.textContent    = tnLocked ? t.lblLockTn : t.lockLabel;
-    btn.classList.toggle("unlocked", !tnLocked);
-    if (tnLocked) updateTarget();
-    else { inp.value = calcTN(); inp.focus(); }
-  } else {
-    crLocked = !crLocked;
-    var btn2 = g("lockCR");
-    var disp2 = g("compRangeDisplay");
-    var inp2  = g("crOverride");
-    disp2.style.display = crLocked ? "" : "none";
-    inp2.style.display  = crLocked ? "none" : "";
-    btn2.textContent    = crLocked ? t.lblLockCr : t.lockLabel;
-    btn2.classList.toggle("unlocked", !crLocked);
-    if (crLocked) updateTarget();
-    else { inp2.value = calcCR(); inp2.focus(); }
-  }
+  var crit = getEffectiveCrit();
+  var hint = g("lbl-crit-hint");
+  if (hint) hint.textContent = crit === 1 ? t.critHintNoFocus : (t.critHintFocus + crit);
 }
 
 // ── ASSIST ────────────────────────────────────────────────────────────────────
@@ -417,7 +391,8 @@ function rollAssist() {
   var rolls = [];
   for (var i = 0; i < 2; i++) {
     var roll = Math.floor(Math.random() * 20) + 1;
-    var suc  = computeSuccesses(roll, tN, skill, focus);
+    var critMax = hasFocus() ? Math.max(1, getSkill()) : 1;
+    var suc  = computeSuccesses(roll, tN, skill, focus, critMax);
     var isComp = (roll >= cr);
     rolls.push({val:roll, successes:suc, isComp:isComp});
   }
@@ -464,10 +439,10 @@ function rollAssist() {
 }
 
 // ── ROLL LOGIC ────────────────────────────────────────────────────────────────
-function computeSuccesses(roll, target, skillVal, focus) {
-  if (roll === 1) return 2;
+function computeSuccesses(roll, target, skillVal, focus, critMax) {
+  if (critMax === undefined) critMax = focus ? Math.max(1, skillVal) : 1;
+  if (roll <= critMax) return 2;   // critical range
   if (roll > target) return 0;
-  if (focus && roll <= skillVal) return 2;
   return 1;
 }
 
@@ -481,7 +456,8 @@ function doRoll() {
 
   for (var i = 0; i < 2 + extra; i++) {
     var roll  = Math.floor(Math.random() * 20) + 1;
-    var suc   = computeSuccesses(roll, tN, skill, focus);
+    var critMax = getEffectiveCrit();
+    var suc   = computeSuccesses(roll, tN, skill, focus, critMax);
     var isFort = (fort && i === 0);
     var isAst  = (i >= 2 + getBaseExtra()); // dice from assist
     if (isFort) suc = Math.max(1, suc);
@@ -635,7 +611,7 @@ function setLang(lang) {
     "lbl-card-main":"cardMain","lbl-card-dmg":"cardDmg","lbl-attr":"lblAttr","lbl-skill":"lblSkill",
     "lbl-tn-bonus":"lblTnBonus","lbl-tn-hint":"lblTnHint","lbl-target-num":"lblTargetNum",
     "lbl-difficulty":"lblDifficulty","lbl-injuries":"lblInjuries",
-    "lbl-comp-range-label":"lblCompRangeLabel","lbl-extra-dice":"lblExtraDice",
+    "lbl-crit-range":"lblCritRange","lbl-comp-range-label":"lblCompRangeLabel","lbl-extra-dice":"lblExtraDice",
     "lbl-focus":"lblFocus","btn-roll":"btnRoll",
     "lbl-advanced":"lblAdvanced","lbl-use-fortune":"lblUseFortune","lbl-opposed":"lblOpposed",
     "lbl-assist-title":"lblAssistTitle","lbl-assist-hint":"lblAssistHint",
@@ -648,8 +624,7 @@ function setLang(lang) {
   };
   Object.keys(map).forEach(function(id){ var el=g(id); if(el) el.textContent=t[map[id]]; });
   // Update lock buttons respecting current state
-  g("lockTN").textContent = tnLocked ? t.lblLockTn : t.lockLabel;
-  g("lockCR").textContent = crLocked ? t.lblLockCr : t.lockLabel;
+  updateCritHint();
   g("footer-text").innerHTML = t.footer;
   g("kofi-link").textContent = t.kofi;
   g("langDropdown").classList.remove("open");
@@ -664,7 +639,8 @@ function toggleTheme(){
 
 // ── OPTION TILES ──────────────────────────────────────────────────────────────
 function toggleTile(tileId, cbId) {
-  var cb = g(cbId); cb.checked = !cb.checked;
+  // Called via onchange on the checkbox — browser already toggled checked
+  var cb = g(cbId);
   var tile = g(tileId);
   tile.classList.remove("active","active-fortune","active-assist");
   if (cb.checked) {
@@ -689,6 +665,7 @@ function switchTab(tab){
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 updateTarget();
+updateCritHint();
 </script>
 </body>
 </html>
