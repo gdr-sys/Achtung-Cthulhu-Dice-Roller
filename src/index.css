@@ -1,0 +1,276 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #c8a84b;
+  --bg: #1a1a12;
+  --card: #22221a;
+  --accent: #8fbc55;
+  --text: #e8e0c8;
+  --border: #3a3a28;
+  --input-bg: #12120c;
+  --footer: rgba(200, 168, 75, 0.55);
+  --danger: #c0392b;
+  --muted: #7a7060;
+  --threat: #a84b4b;
+  --fortune: #6b9fc8;
+  --complication: #e67e22;
+}
+
+[data-theme="light"] {
+  --bg: #f0ead8;
+  --card: #faf6eb;
+  --text: #2a2418;
+  --border: #c8b89a;
+  --input-bg: #e8e0cc;
+  --footer: rgba(80, 60, 20, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  font-family: 'Special Elite', serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 3px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Custom utility classes */
+@layer utilities {
+  .font-display {
+    font-family: 'Special Elite', serif;
+  }
+  
+  .font-mono {
+    font-family: 'Share Tech Mono', monospace;
+  }
+}
+
+/* Theme-aware colors */
+@layer base {
+  .bg-bg { background-color: var(--bg); }
+  .bg-card { background-color: var(--card); }
+  .bg-input-bg { background-color: var(--input-bg); }
+  .bg-primary { background-color: var(--primary); }
+  .bg-accent { background-color: var(--accent); }
+  .bg-danger { background-color: var(--danger); }
+  .bg-border { background-color: var(--border); }
+  .bg-complication { background-color: var(--complication); }
+  .bg-fortune { background-color: var(--fortune); }
+  .bg-threat { background-color: var(--threat); }
+  
+  .text-text { color: var(--text); }
+  .text-primary { color: var(--primary); }
+  .text-accent { color: var(--accent); }
+  .text-danger { color: var(--danger); }
+  .text-muted { color: var(--muted); }
+  .text-complication { color: var(--complication); }
+  .text-fortune { color: var(--fortune); }
+  .text-threat { color: var(--threat); }
+  .text-footer { color: var(--footer); }
+  
+  .border-border { border-color: var(--border); }
+  .border-primary { border-color: var(--primary); }
+  .border-accent { border-color: var(--accent); }
+  .border-danger { border-color: var(--danger); }
+  .border-complication { border-color: var(--complication); }
+  .border-fortune { border-color: var(--fortune); }
+  .border-threat { border-color: var(--threat); }
+}
+
+/* Animation for complication dice */
+@keyframes pulse-comp {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(230, 126, 34, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(230, 126, 34, 0.9);
+  }
+}
+
+.animate-pulse-comp {
+  animation: pulse-comp 0.8s ease-in-out 3;
+}
+
+/* Dice roll animation */
+@keyframes dice-roll {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-dice-roll {
+  animation: dice-roll 0.4s ease-out forwards;
+}
+
+/* Staggered animation for multiple dice */
+.animate-dice-roll:nth-child(1) { animation-delay: 0s; }
+.animate-dice-roll:nth-child(2) { animation-delay: 0.05s; }
+.animate-dice-roll:nth-child(3) { animation-delay: 0.1s; }
+.animate-dice-roll:nth-child(4) { animation-delay: 0.15s; }
+.animate-dice-roll:nth-child(5) { animation-delay: 0.2s; }
+
+/* Button hover effects */
+button {
+  transition: all 0.2s ease;
+}
+
+/* Card shadow enhancement */
+.shadow-lg {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Focus states */
+input:focus,
+button:focus {
+  outline: none;
+}
+
+/* Mobile touch optimization */
+@media (hover: none) {
+  button:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Dice shake animation for rolling */
+@keyframes dice-shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  10% { transform: translateX(-3px) rotate(-5deg); }
+  20% { transform: translateX(3px) rotate(5deg); }
+  30% { transform: translateX(-3px) rotate(-3deg); }
+  40% { transform: translateX(3px) rotate(3deg); }
+  50% { transform: translateX(-2px) rotate(-2deg); }
+  60% { transform: translateX(2px) rotate(2deg); }
+  70% { transform: translateX(-1px) rotate(-1deg); }
+  80% { transform: translateX(1px) rotate(1deg); }
+  90% { transform: translateX(0) rotate(0deg); }
+}
+
+.animate-dice-shake {
+  animation: dice-shake 0.3s ease-in-out;
+}
+
+/* Success flash animation */
+@keyframes success-flash {
+  0% { background-color: rgba(143, 188, 85, 0); }
+  50% { background-color: rgba(143, 188, 85, 0.2); }
+  100% { background-color: rgba(143, 188, 85, 0); }
+}
+
+.animate-success-flash {
+  animation: success-flash 0.5s ease-out;
+}
+
+/* Failure flash animation */
+@keyframes failure-flash {
+  0% { background-color: rgba(192, 57, 43, 0); }
+  50% { background-color: rgba(192, 57, 43, 0.2); }
+  100% { background-color: rgba(192, 57, 43, 0); }
+}
+
+.animate-failure-flash {
+  animation: failure-flash 0.5s ease-out;
+}
+
+/* Smooth transitions for panels */
+.transition-panel {
+  transition: max-height 0.4s ease, padding 0.35s ease, opacity 0.3s ease;
+}
+
+/* Tooltip styling */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-family: 'Share Tech Mono', monospace;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+/* Print styles for reference */
+@media print {
+  body::before {
+    display: none;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* Input styling */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
